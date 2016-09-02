@@ -1,0 +1,17 @@
+{
+  "name": "word_count",
+  "version": "1.0.0",
+  "description": "",
+  "main": "wc.js",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "epub": "^0.1.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "David Brownman <beamneocube@gmail.com> (https://davidbrownman.com)",
+  "license": "ISC"
+}
