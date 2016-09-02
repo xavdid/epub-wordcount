@@ -1,44 +1,60 @@
 #! /usr/bin/env node
 
+'use strict'
+
 const EPub = require('epub')
+
+// var promisify = require('bluebird-events')
+
 const htmlRegex = /(<([^>]+)>)/ig
 const cssRegex = /<style[^>]*>[\s\S]*<\/style>/g
-let chapters = []
 let total = 0
 
-let title = 'Rothfuss - The Name of the Wind (2007).epub'
+const title = 'Rothfuss - The Name of the Wind (2007).epub'
 
 let epub = new EPub(`/Users/david/Dropbox/Ebooks/Singles/${title}`)
 epub.parse()
+// promisify(epub, {resolve: 'end'})
+
+// epub.parse().then(() => {
+//   main()
+// })
+
 epub.on('end', function () {
   main()
 })
 
-function idToText (id, cb) {
-  epub.getChapterRaw(id, function (err, text) {
-    if (err) { throw (err) }
+function cleanText (text) {
+  let res = text
+    .replace(cssRegex, '')
+    // these are replaced by spaces so that newlines in the text are properly tokenized
+    .replace(htmlRegex, ' ')
+    .replace(/[\n\t\r]/g, ' ')
+    .split(' ')
+    .filter(x => x.trim() !== '')
+  console.log(res)
+  return res
+}
 
-    text = text
-      .replace(cssRegex, '')
-      // these are replaced by spaces so that newlines in the text are properly tokenized
-      .replace(htmlRegex, ' ')
-      .replace(/[\n\t\r]/g, ' ')
-      .split(' ')
-      .filter(x => x.trim() !== '')
-    console.log(text)
-    return cb(text.length)
+function idToText (id) {
+  return new Promise(function (resolve, reject) {
+    epub.getChapterRaw(id, function (err, text) {
+      if (err) { throw (err) }
+      resolve(cleanText(text).length)
+    })
   })
 }
 
 function main () {
-  epub.flow.forEach(function (chapter) {
-    // console.log(chapter.id)
-    chapters.push(chapter.id)
-    idToText(chapter.id, function (res) {
+  Promise.all(epub.flow.map((chapter) => {
+    return idToText(chapter.id).then(function (res) {
       // console.log(res)
       total += res
-      console.log(`word count: ${total}`)
     })
+  })).then(() => {
+    // all done!
+    console.log(`word count: ${total}`)
+  }).catch((err) => {
+    console.log(err)
   })
-  console.log(chapters.sort())
 }
