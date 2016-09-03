@@ -10,11 +10,11 @@ Pull requests welcome.
 
 ## API
 
-**countWords(path, [options])**
+**countWords(path, [options])** => Promise<number>
 
-### path(`String|String[]`)
+### path(`string`)
 
-If `path` is a directory, run for each file in the directory. Optionally, recurse through them (see below). If it's an array, repeat for each.
+Path to (what is hopefully) an epub file. Opens it, and returns a promise that resolves to the number of words in the book.
 
 ### options
 
@@ -23,5 +23,5 @@ Object of options. It itself is optional.
 | key | type | function | default |
 | --- | --- | --- | --- |
 print | boolean | print a nice message with data included for each file | false
-recursive | boolean | recurse into subdirectories if `path` is a directory | false
+
 

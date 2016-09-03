@@ -5,12 +5,15 @@
   "main": "wc.js",
   "dependencies": {
     "epub": "^0.1.6",
-    "lodash.merge": "^4.6.0",
+    "lodash": "^4.15.0",
     "promisify-event": "^1.0.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "typings i",
+    "prepublish": "tsc",
+    "clean": "rm -rf node_modules typings"
   },
   "keywords": [
     "epub",
