@@ -1,17 +1,22 @@
 {
-  "name": "word_count",
-  "version": "1.0.0",
+  "name": "epub-wordcount",
+  "version": "0.1.1",
   "description": "Count the number of words in an ebook",
   "main": "wc.js",
   "dependencies": {
     "epub": "^0.1.6",
+    "lodash.merge": "^4.6.0",
     "promisify-event": "^1.0.0"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["epub", "ebook", "stats"],
+  "keywords": [
+    "epub",
+    "ebook",
+    "stats"
+  ],
   "author": "David Brownman <beamneocube@gmail.com> (https://davidbrownman.com)",
   "license": "ISC"
 }

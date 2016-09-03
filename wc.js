@@ -4,6 +4,7 @@
 
 const EPub = require('epub')
 const promisifyEvent = require('promisify-event')
+const merge = require('lodash.merge')
 
 // var promisify = require('bluebird-events')
 
@@ -13,7 +14,9 @@ const htmlRegex = /(<([^>]+)>)/ig
 
 // takes a path to an ebook file
 function countWords (path, options) {
-  options = options || {print: false}
+  // load defaults
+  options = merge({}, { print: false, recursive: false }, options)
+
   let epub = new EPub(path)
   try {
     epub.parse()
@@ -25,12 +28,6 @@ function countWords (path, options) {
     return main(epub, options)
   })
 }
-
-// promisify(epub, {resolve: 'end'})
-
-// epub.parse().then(() => {
-//   main()
-// })
 
 function cleanText (text) {
   let res = text
@@ -45,7 +42,7 @@ function cleanText (text) {
 
 function idToText (id, epub) {
   return new Promise(function (resolve, reject) {
-    // using this instead of getChapterRaw pulls out style and stuff for me
+    // using this instead of getChapterRaw, which pulls out style and stuff for me
     epub.getChapter(id, function (err, text) {
       if (err) { throw (err) }
       resolve(cleanText(text).length)
