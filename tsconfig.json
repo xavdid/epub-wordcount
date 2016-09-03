@@ -4,10 +4,5 @@
         "target": "es6",
         "noImplicitAny": false,
         "sourceMap": false
-    },
-    "files": [
-        "index.ts",
-        "index.d.ts",
-        "typings/index.d.ts"
-    ]
+    }
 }

@@ -13,13 +13,18 @@ const htmlRegex = /(<([^>]+)>)/ig
 // takes a path to an ebook file
 export = async function countWords (path: string, options: Options) {
   // load defaults
-  let opts = _.merge({}, { print: false, recursive: false }, options)
+  const opts = _.merge({}, { print: false, fragile: true }, options)
 
-  let epub = new EPub(path)
+  const epub = new EPub(path)
   try {
     epub.parse()
   } catch (e) {
-    console.log(`${e.message} :: (path: "${path}")`)
+    const message = `${e.message} :: (path: "${path}")`
+    if (opts.fragile) {
+      throw new Error(message)
+    } else {
+      console.log(message)
+    }
   }
 
   await promisifyEvent(epub, 'end')
@@ -27,7 +32,7 @@ export = async function countWords (path: string, options: Options) {
 }
 
 function cleanText (text: string) {
-  let res = text
+  const res = text
     // these are replaced by spaces so that newlines in the text are properly tokenized
     .replace(htmlRegex, ' ')
     .replace(/[\n\t\r]/g, ' ')

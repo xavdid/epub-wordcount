@@ -23,5 +23,6 @@ Object of options. It itself is optional.
 | key | type | function | default |
 | --- | --- | --- | --- |
 print | boolean | print a nice message with data included for each file | false
+fragile | boolean | throw error on missing epub file (vs logging the error instead) | true
 
 
