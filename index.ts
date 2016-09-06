@@ -4,14 +4,12 @@ import EPub = require('epub')
 import promisifyEvent = require('promisify-event')
 import _ = require('lodash')
 
-// var promisify = require('bluebird-events')
-
 const ignoredTitlesRegex = /acknowledgment|copyright|cover|dedication|title|author|contents/i
 // match all html tags, no matter their contents
 const htmlRegex = /(<([^>]+)>)/ig
 
 // takes a path to an ebook file
-export = async function countWords (path: string, options: Options) {
+export = async function countWords (path: string, options?: Options) {
   // load defaults
   const opts = _.merge({}, { print: false, fragile: true }, options)
 

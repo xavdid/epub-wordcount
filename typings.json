@@ -4,7 +4,6 @@
     "lodash": "registry:npm/lodash#4.0.0+20160723033700"
   },
   "globalDependencies": {
-    "epub": "registry:dt/epub#0.0.0+20160810142048",
     "node": "registry:dt/node#6.0.0+20160831021119"
   }
 }

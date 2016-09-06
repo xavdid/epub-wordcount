@@ -4,7 +4,7 @@
   "description": "Count the number of words in an ebook",
   "main": "index.js",
   "dependencies": {
-    "epub": "^0.1.6",
+    "epub": "xavdid/epub",
     "lodash": "^4.15.0",
     "promisify-event": "^1.0.0"
   },
