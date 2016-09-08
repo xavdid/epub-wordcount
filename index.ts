@@ -10,8 +10,8 @@ const htmlRegex = /(<([^>]+)>)/ig
 
 // takes a path to an ebook file
 export = async function countWords (path: string, options?: Options) {
-  // load defaults
-  const opts = _.merge({}, { print: false, fragile: true }, options)
+  const defaults: Options = { print: false, fragile: true }
+  const opts = _.merge({}, defaults, options)
 
   const epub = new EPub(path)
   try {
@@ -52,7 +52,7 @@ function chapterLength (id: string, epub: EPub): Promise<number> {
 
 async function main (epub: EPub, options: Options) {
   let total = 0
-  const promises = epub.flow.map(async (chapter: Chapter) => {
+  const promises = epub.flow.map(async (chapter) => {
     if (chapter.title === undefined || !chapter.title.match(ignoredTitlesRegex)) {
       const res = await chapterLength(chapter.id, epub)
       total += res
@@ -61,7 +61,7 @@ async function main (epub: EPub, options: Options) {
   await Promise.all(promises) // basically a glorified pause
 
   if (options.print) {
-    const metadata = <Metadata> epub.metadata
+    const metadata = epub.metadata
     console.log(`${metadata.title}`)
     console.log('-'.repeat(metadata.title.length))
     console.log(` * Word Count: ${total}`)

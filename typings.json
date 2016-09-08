@@ -1,9 +1,0 @@
-{
-  "name": "epub-wordcount",
-  "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20160723033700"
-  },
-  "globalDependencies": {
-    "node": "registry:dt/node#6.0.0+20160831021119"
-  }
-}
