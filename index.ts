@@ -1,15 +1,21 @@
 'use strict'
 
+import { Options } from './interfaces'
+
 import EPub = require('epub')
-import promisifyEvent = require('promisify-event')
+// import * as things from '../tstest'
+
 import _ = require('lodash')
+
+type PromisifyEvent = (server: any, event: string) => Promise<void>
+const promisifyEvent:PromisifyEvent = require('promisify-event')
 
 const ignoredTitlesRegex = /acknowledgment|copyright|cover|dedication|title|author|contents/i
 // match all html tags, no matter their contents
 const htmlRegex = /(<([^>]+)>)/ig
 
 // takes a path to an ebook file
-export = async function countWords (path: string, options?: Options) {
+export async function countWords (path: string, options?: Options) {
   const defaults: Options = { print: false, fragile: true }
   const opts = _.merge({}, defaults, options)
 
@@ -43,7 +49,7 @@ function cleanText (text: string) {
 function chapterLength (id: string, epub: EPub): Promise<number> {
   return new Promise(function (resolve, reject) {
     // using this instead of getChapterRaw, which pulls out style and stuff for me
-    epub.getChapter(id, function (err, text: string) {
+    epub.getChapter(id, function (err: Error, text: string) {
       if (err) { throw (err) }
       resolve(cleanText(text).length)
     })

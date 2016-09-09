@@ -47,3 +47,4 @@ typings
 
 # ts project
 *.js
+*.d.ts

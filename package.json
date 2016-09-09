@@ -1,11 +1,10 @@
 {
   "name": "epub-wordcount",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Count the number of words in an ebook",
   "main": "index.js",
   "dependencies": {
     "@types/lodash": "^4.14.34",
-    "@types/node": "^6.0.38",
     "epub": "xavdid/epub",
     "lodash": "^4.15.0",
     "promisify-event": "^1.0.0"
@@ -16,7 +15,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "tsc --declaration"
+    "prepublish": "tsc"
   },
   "keywords": [
     "epub",

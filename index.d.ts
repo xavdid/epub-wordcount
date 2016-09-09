@@ -1,2 +1,2 @@
-declare var _default: (path: string, options?: Options) => Promise<number>;
-export = _default;
+import { Options } from './interfaces';
+export declare function countWords(path: string, options?: Options): Promise<number>;
