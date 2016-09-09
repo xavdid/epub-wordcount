@@ -1,6 +1,7 @@
 'use strict'
 
 import { Options } from './interfaces'
+export { Options as WordCountOptions } from './interfaces'
 
 import EPub = require('epub')
 // import * as things from '../tstest'
