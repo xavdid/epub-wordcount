@@ -3,5 +3,6 @@
 // top level options for how the module is run
 export interface Options {
   print?: boolean,
-  fragile?: boolean
+  fragile?: boolean,
+  quiet?: boolean
 }

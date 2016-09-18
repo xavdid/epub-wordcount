@@ -17,7 +17,7 @@ const htmlRegex = /(<([^>]+)>)/ig
 
 // takes a path to an ebook file
 export async function countWords (path: string, options?: Options) {
-  const defaults: Options = { print: false, fragile: true }
+  const defaults: Options = { print: false, fragile: true, quiet: false }
   const opts = _.merge({}, defaults, options)
 
   const epub = new EPub(path)
@@ -33,7 +33,7 @@ export async function countWords (path: string, options?: Options) {
   }
 
   await promisifyEvent(epub, 'end')
-  return await main(epub, opts)
+  return main(epub, opts)
 }
 
 function cleanText (text: string) {
@@ -51,7 +51,7 @@ function chapterLength (id: string, epub: EPub): Promise<number> {
   return new Promise(function (resolve, reject) {
     // using this instead of getChapterRaw, which pulls out style and stuff for me
     epub.getChapter(id, function (err: Error, text: string) {
-      if (err) { throw (err) }
+      if (err) { reject(err) }
       resolve(cleanText(text).length)
     })
   })
@@ -61,8 +61,14 @@ async function main (epub: EPub, options: Options) {
   let total = 0
   const promises = epub.flow.map(async (chapter) => {
     if (chapter.title === undefined || !chapter.title.match(ignoredTitlesRegex)) {
-      const res = await chapterLength(chapter.id, epub)
-      total += res
+      try {
+        const res = await chapterLength(chapter.id, epub)
+        total += res
+      } catch (e) {
+        if (!options.quiet) {
+          console.log(`Issue with chapter ${chapter.id} in book ${epub.metadata.title}`)
+        }
+      }
     }
   })
   await Promise.all(promises) // basically a glorified pause
