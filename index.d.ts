@@ -1,3 +1,6 @@
-import { Options } from './interfaces';
-export { Options as WordCountOptions } from './interfaces';
+export interface Options {
+    print?: boolean;
+    sturdy?: boolean;
+    quiet?: boolean;
+}
 export declare function countWords(path: string, options?: Options): Promise<number>;

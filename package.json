@@ -4,10 +4,17 @@
   "description": "Count the number of words in an ebook",
   "main": "index.js",
   "dependencies": {
+    "@types/commander": "^2.9.0",
     "@types/lodash": "^4.14.34",
+    "@types/mz": "0.0.31",
+    "commander": "^2.9.0",
     "epub": "xavdid/epub",
     "lodash": "^4.15.0",
+    "mz": "^2.6.0",
     "promisify-event": "^1.0.0"
+  },
+  "bin": {
+    "word-count": "./word-count.js"
   },
   "typings": "index.d.ts",
   "devDependencies": {

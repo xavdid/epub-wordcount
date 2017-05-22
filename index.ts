@@ -1,12 +1,14 @@
 'use strict'
 
-import { Options } from './interfaces'
-export { Options as WordCountOptions } from './interfaces'
-
 import EPub = require('epub')
-// import * as things from '../tstest'
 
 import _ = require('lodash')
+
+export interface Options {
+  print?: boolean,
+  sturdy?: boolean,
+  quiet?: boolean
+}
 
 type PromisifyEvent = (server: any, event: string) => Promise<void>
 const promisifyEvent:PromisifyEvent = require('promisify-event')
@@ -17,7 +19,7 @@ const htmlRegex = /(<([^>]+)>)/ig
 
 // takes a path to an ebook file
 export async function countWords (path: string, options?: Options) {
-  const defaults: Options = { print: false, fragile: true, quiet: false }
+  const defaults: Options = { print: false, sturdy: false, quiet: false }
   const opts = _.merge({}, defaults, options)
 
   const epub = new EPub(path)
@@ -25,10 +27,10 @@ export async function countWords (path: string, options?: Options) {
     epub.parse()
   } catch (e) {
     const message = `${e.message} :: (path: "${path}")`
-    if (opts.fragile) {
-      throw new Error(message)
-    } else {
+    if (opts.sturdy) {
       console.log(message)
+    } else {
+      throw new Error(message)
     }
   }
 
