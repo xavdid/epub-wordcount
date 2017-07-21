@@ -6,6 +6,10 @@ import path = require('path')
 
 import cli = require('commander')
 
+import updateNotifier = require('update-notifier');
+const pkg = require('./package.json');
+updateNotifier({ pkg }).notify();
+
 async function parsePath(fpath: string, opts: wc.Options) {
   try {
     const stat = await fs.stat(fpath)
