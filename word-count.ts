@@ -42,16 +42,16 @@ cli
   .description('count the words in an epub file')
   .version(require('./package.json').version)
   .option(
-    '-p, --print',
-    'print out a nicely formatted message, especially helpful for directories'
+    '-r, --raw',
+    'print out an array of word counts without the frivolty'
   )
   .option(
     '-s, --sturdy',
     'skip malformed epub files; default, error'
   )
   .option(
-    '-q, --quiet',
-    'suppress warnings about inidividual chapters being weird'
+    '-l, --loud',
+    'print warnings about inidividual chapters being weird; helpful for narrowing down parsing errors'
   )
   // .option('-r, --recurse', 'if PATH is a directory, also act on subdirectories')
   .parse(process.argv)
@@ -63,9 +63,9 @@ if (!cli.args.length) {
 
 const fpath = cli.args[0]
 let opts: wc.Options = {
-  print: cli.print,
+  print: !cli.raw,
   sturdy: cli.sturdy,
-  quiet: cli.quiet
+  quiet: !cli.loud
 }
 
 parsePath(fpath, opts)

@@ -79,7 +79,7 @@ async function main (epub: EPub, options: Options) {
     const metadata = epub.metadata
     console.log(`${metadata.title}`)
     console.log('-'.repeat(metadata.title.length))
-    console.log(` * Word Count: ${total}`)
+    console.log(` * ${total.toLocaleString()} words`)
     console.log()
   }
 
