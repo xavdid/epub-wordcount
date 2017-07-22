@@ -26,7 +26,7 @@ export async function countWords (path: string, options?: Options) {
   try {
     epub.parse()
   } catch (e) {
-    const message = `${e.message} :: (path: "${path}")`
+    const message = `${e.message} :: (path: "${path}")\n`
     if (opts.sturdy) {
       console.log(message)
     } else {
@@ -35,7 +35,11 @@ export async function countWords (path: string, options?: Options) {
   }
 
   await promisifyEvent(epub, 'end')
-  return main(epub, opts)
+  if (!opts.sturdy && epub.hasDRM()) {
+    throw new Error(`Unable to accurately count "${epub.metadata.title}" because it is DRM protected`)
+  } else {
+    return main(epub, opts)
+  }
 }
 
 function cleanText (text: string) {
@@ -77,11 +81,21 @@ async function main (epub: EPub, options: Options) {
 
   if (options.print) {
     const metadata = epub.metadata
-    console.log(`${metadata.title}`)
+    console.log(metadata.title)
     console.log('-'.repeat(metadata.title.length))
-    console.log(` * ${total.toLocaleString()} words`)
+
+    if (epub.hasDRM()) {
+      // if there's DRM, the answer is way too low
+      console.log(' * DRM detected')
+    } else {
+      console.log(` * ${total.toLocaleString()} words`)
+    }
     console.log()
   }
 
-  return total
+  if (epub.hasDRM()) {
+    return -1
+  } else {
+    return total
+  }
 }

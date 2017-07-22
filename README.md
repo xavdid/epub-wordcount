@@ -37,7 +37,6 @@ Pull requests welcome.
 
 ## API
 
-
 `countWords(path, [options]) => Promise<number>`
 
 ### path(`string`)

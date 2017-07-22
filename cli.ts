@@ -50,8 +50,8 @@ cli
     'print out an array of word counts without the frivolty'
   )
   .option(
-    '-s, --sturdy',
-    'skip malformed epub files; default, error'
+    '-f, --fragile',
+    'fail on malformed epub files; default: print but skip'
   )
   .option(
     '-l, --loud',
@@ -68,7 +68,7 @@ if (!cli.args.length) {
 const fpath = cli.args[0]
 let opts: wc.Options = {
   print: !cli.raw,
-  sturdy: cli.sturdy,
+  sturdy: !cli.sturdy,
   quiet: !cli.loud
 }
 
