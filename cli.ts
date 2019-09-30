@@ -57,6 +57,7 @@ cli
     'print warnings about inidividual chapters being weird; helpful for narrowing down parsing errors'
   )
   .option('-c, --chars', 'count characters instead of words')
+  .option('-t, --text', 'output the text content instead of a number')
   // .option('-r, --recurse', 'if PATH is a directory, also act on subdirectories')
   .parse(process.argv)
 
@@ -70,7 +71,8 @@ let opts: wc.Options = {
   print: !cli.raw,
   sturdy: !cli.sturdy,
   quiet: !cli.loud,
-  chars: cli.chars
+  chars: cli.chars,
+  text: cli.text
 }
 
 parsePath(fpath, opts)

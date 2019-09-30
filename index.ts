@@ -9,6 +9,7 @@ export interface Options {
   sturdy?: boolean
   quiet?: boolean
   chars?: boolean
+  text?: boolean
 }
 
 type PromisifyEvent = (server: any, event: string) => Promise<void>
@@ -59,15 +60,15 @@ function nWords(text: string) {
 }
 
 function nCount(options: Options, text: string) {
-  const clean = cleanText(text)
-  return options.chars ? clean.length : nWords(clean)
+  // const clean = cleanText(text)
+  return options.chars ? text.length : nWords(text)
 }
 
-function chapterLength(
+function chapterText(
   id: string,
   epub: EPub,
   options: Options
-): Promise<number> {
+): Promise<string> {
   return new Promise(function(resolve, reject) {
     // using this instead of getChapterRaw, which pulls out style and stuff for me
     epub.getChapter(id, function(err: Error, text: string) {
@@ -75,21 +76,21 @@ function chapterLength(
         reject(err)
       }
 
-      resolve(nCount(options, text))
+      resolve(cleanText(text))
     })
   })
 }
 
 async function main(epub: EPub, options: Options) {
-  let total = 0
-  const promises = epub.flow.map(async chapter => {
+  let chapters = []
+  for (const chapter of epub.flow) {
     if (
       chapter.title === undefined ||
       !chapter.title.match(ignoredTitlesRegex)
     ) {
       try {
-        const res = await chapterLength(chapter.id, epub, options)
-        total += res
+        const res = await chapterText(chapter.id, epub, options)
+        chapters.push(res)
       } catch (e) {
         if (!options.quiet) {
           console.log(
@@ -98,29 +99,34 @@ async function main(epub: EPub, options: Options) {
         }
       }
     }
-  })
-  await Promise.all(promises) // basically a glorified pause
-
-  if (options.print) {
-    const metadata = epub.metadata
-    console.log(metadata.title)
-    console.log('-'.repeat(metadata.title.length))
-
-    if (epub.hasDRM()) {
-      // if there's DRM, the answer is way too low
-      console.log(' * DRM detected')
-    } else {
-      console.log(
-        ` * ${total.toLocaleString()} ` +
-          (options.chars ? 'characters' : 'words')
-      )
-    }
-    console.log()
   }
+  // await Promise.all(promises) // basically a glorified pause
 
   if (epub.hasDRM()) {
+    if (options.print) {
+      console.log(' * DRM detected')
+    }
     return -1
+  }
+
+  if (options.text) {
+    if (options.print) console.log(chapters.join('\n'))
+    return chapters.join('\n')
   } else {
-    return total
+    const count = chapters.reduce((a, c) => a + nCount(options, c), 0)
+    if (options.print) {
+      const metadata = epub.metadata
+      console.log(metadata.title)
+      console.log('-'.repeat(metadata.title.length))
+
+      console.log(
+        ` * ${count.toLocaleString()} ` +
+          (options.chars ? 'characters' : 'words')
+      )
+
+      console.log()
+    }
+
+    return count
   }
 }
