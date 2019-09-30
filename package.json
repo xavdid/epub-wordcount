@@ -1,5 +1,5 @@
 {
-  "name": "epub-wordcount",
+  "name": "@swann-studio/epub-wordcount",
   "version": "1.3.0",
   "description": "Count the number of words in an ebook",
   "main": "index.js",
