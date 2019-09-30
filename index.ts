@@ -1,8 +1,10 @@
 'use strict'
 
 import EPub = require('epub')
+import decode = require('parse-entities')
 
 import _ = require('lodash')
+// import { decode } from './unicode'
 
 export interface Options {
   print?: boolean
@@ -52,7 +54,7 @@ function cleanText(text: string) {
     .replace(htmlRegex, ' ')
     .replace(/[\n\t\r\s]+/g, ' ')
   // console.log(res)
-  return res
+  return decode(res)
 }
 
 function nWords(text: string) {
