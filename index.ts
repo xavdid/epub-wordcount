@@ -50,7 +50,7 @@ function cleanText(text: string) {
   const res = text
     // these are replaced by spaces so that newlines in the text are properly tokenized
     .replace(htmlRegex, ' ')
-    .replace(/[\n\t\r]/g, ' ')
+    .replace(/[\n\t\r\s]+/g, ' ')
   // console.log(res)
   return res
 }
