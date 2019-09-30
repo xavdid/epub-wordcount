@@ -47,11 +47,13 @@ Path to (what is hopefully) an epub file. Opens it, and returns a promise that r
 
 Object of options. It's optional, I don't know your life.
 
-| key | type | function | default |
-| --- | --- | --- | --- |
-print | boolean | print a nice message with data included for each file | false
-sturdy | boolean | bravely ignore errors on missing or malformed epub file | false
-quiet | boolean | stifle errors in parsing chapters | false
+| key    | type    | function                                                 | default |
+| ------ | ------- | -------------------------------------------------------- | ------- |
+| print  | boolean | print a nice message with data included for each file    | false   |
+| sturdy | boolean | bravely ignore errors on missing or malformed epub file  | false   |
+| quiet  | boolean | stifle errors in parsing chapters                        | false   |
+| chars  | boolean | count characters, including spaces, instead of words.    | false   |
+| text   | boolean | output the cleaned text which would be used for counting | false   |
 
 ## Tests
 
