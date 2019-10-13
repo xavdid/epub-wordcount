@@ -7,7 +7,7 @@ Given an epub file, do our best to count the number of words in it.
 ```javascript
 epub = require('epub-wordcount')
 
-epub.countWords('enders-game.epub').then((c) => {
+epub.countWords('enders-game.epub').then(c => {
   console.log(`There are ${c} words`)
 })
 // There are 106190 words
@@ -57,4 +57,4 @@ Object of options. It's optional, I don't know your life.
 
 ## Tests
 
-... are for code that doesn't work on the first try (which this undoubtedly doesn't) so please let me know if you see something wrong.
+Are run using Stevenson's _THE STRANGE CASE OF DR. JEKYLL AND MR. HYDE_, from the public domain, provided by [Standard Ebooks](https://standardebooks.org/ebooks/robert-louis-stevenson/the-strange-case-of-dr-jekyll-and-mr-hyde).

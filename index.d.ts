@@ -5,4 +5,4 @@ export interface Options {
     chars?: boolean;
     text?: boolean;
 }
-export declare function countWords(path: string, options?: Options): Promise<string | number>;
+export declare function countWords(path: string, options?: Options): any;
