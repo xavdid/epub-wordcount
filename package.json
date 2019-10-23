@@ -26,6 +26,7 @@
     "@types/mz": "0.0.32",
     "@types/update-notifier": "^2.2",
     "jest": "24.9.0",
+    "stdout-stderr": "0.1.9",
     "typescript": "^3.6"
   },
   "scripts": {

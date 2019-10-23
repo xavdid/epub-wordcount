@@ -10,19 +10,23 @@ import updateNotifier = require('update-notifier')
 const pkg = require('./package.json')
 updateNotifier({ pkg }).notify()
 
+/**
+ * Given a path:
+ * * if it's a file, count the file
+ * * if it's a directory, count each epub file. does not recurse.
+ */
 async function parsePath(fpath: string, opts: wc.Options) {
   try {
     const stat = await fs.stat(fpath)
     if (stat.isDirectory()) {
       const files = await fs.readdir(fpath)
-      return Promise.all(
-        files.map(async f => {
+      const res = await Promise.all(
+        files.map(f => {
           const filepath = path.join(fpath, f)
           return parseFile(filepath, opts)
         })
-      ).then(res => {
-        return res.filter(c => c)
-      })
+      )
+      return res.filter(Boolean)
     } else {
       return parseFile(fpath, opts).then(res => res)
     }
@@ -63,25 +67,25 @@ cli
 
 if (!cli.args.length) {
   console.error('Must supply a path')
-  process.exit(1)
-}
+  process.exitCode = 1
+} else {
+  const fpath = cli.args[0]
+  let opts: wc.Options = {
+    print: !cli.raw,
+    sturdy: !cli.sturdy,
+    quiet: !cli.loud,
+    chars: cli.chars,
+    text: cli.text
+  }
 
-const fpath = cli.args[0]
-let opts: wc.Options = {
-  print: !cli.raw,
-  sturdy: !cli.sturdy,
-  quiet: !cli.loud,
-  chars: cli.chars,
-  text: cli.text
+  parsePath(fpath, opts)
+    .then(res => {
+      if (!opts.print) {
+        console.log(res)
+      }
+    })
+    .catch(e => {
+      console.error(e)
+      process.exitCode = 1
+    })
 }
-
-parsePath(fpath, opts)
-  .then(res => {
-    if (!opts.print) {
-      console.log(res)
-    }
-  })
-  .catch(e => {
-    console.error(e)
-    process.exit(1)
-  })
