@@ -1,10 +1,17 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./lib",
     "module": "commonjs",
-    "target": "es6",
-    "declaration": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "removeComments": true
-  }
+    "target": "ES2017",
+    "strict": true,
+    "lib": [
+      // es6 defaults
+      "es2017",
+      "dom"
+    ]
+    // "jsx": "react"
+    // "declaration": true
+  },
+  "exclude": ["__tests__", "lib"]
 }
