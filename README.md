@@ -7,7 +7,7 @@ Given an epub file, do our best to count the number of words in it.
 ```javascript
 epub = require('epub-wordcount')
 
-epub.countWords('enders-game.epub').then(c => {
+epub.countWords('some-book.epub').then(c => {
   console.log(`There are ${c} words`)
 })
 // There are 106190 words
@@ -24,14 +24,14 @@ word-count path/to/file.epub
 or
 
 ```bash
-word-count path/to/books
+word-count directory/of/books
 ```
 
 See `word-count -h` for more info
 
 ## Limitations
 
-There's no programmatic representation for the table of contents in epub and it's hard to skip over the reviews, copyright, etc. We do our best to guess what's actually story text, but there's a margin of error. Probably no more than ~500 words.
+There's no programmatic representation for the table of contents in epub and it's hard to skip over the reviews, copyright, etc. An effort is made to only parse the actual story text, but there's a margin of error. Probably no more than ~500 words.
 
 Pull requests welcome.
 
@@ -55,6 +55,9 @@ Object of options. It's optional, I don't know your life.
 | chars  | boolean | count characters, including spaces, instead of words.    | false   |
 | text   | boolean | output the cleaned text which would be used for counting | false   |
 
-## Tests
+## Test Books
 
-Are run using Stevenson's _THE STRANGE CASE OF DR. JEKYLL AND MR. HYDE_, from the public domain, provided by [Standard Ebooks](https://standardebooks.org/ebooks/robert-louis-stevenson/the-strange-case-of-dr-jekyll-and-mr-hyde).
+Unit tests are run on the following e-books:
+
+- Stevenson's _THE STRANGE CASE OF DR. JEKYLL AND MR. HYDE_, from the public domain, provided by [Standard Ebooks](https://standardebooks.org/ebooks/robert-louis-stevenson/the-strange-case-of-dr-jekyll-and-mr-hyde)
+- A copy of _The Martian_, by Andy Weir. This is my copy, purchased from Apple Books. It's DRM encumbered, so releasing it publicly should not be seen as copyright infringement.

@@ -1,35 +1,80 @@
 import EPub = require('epub')
 import {
-  countWords,
+  countWordsInString,
   cleanText,
   getEpubPaths,
   parseEpubAtPath,
   getTextInChapters,
   countCharactersInBook,
-  countWordsInBook
-} from '../src'
+  countWordsInBook,
+  shouldParseChapter
+} from '../src/utils'
 import { join as pjoin } from 'path'
+
+const jekyllHydePath = pjoin(__dirname, 'books', 'jekyll-hyde.epub')
+
+describe('should parse chapter', () => {
+  test('falsy title', () => {
+    expect(
+      shouldParseChapter({ level: 0, order: 1, title: '', id: 'blah-1' })
+    ).toBeTruthy()
+  })
+  test('present title', () => {
+    expect(
+      shouldParseChapter({
+        level: 0,
+        order: 1,
+        title: 'something',
+        id: 'blah-1'
+      })
+    ).toBeTruthy()
+  })
+})
 
 describe('counting data', () => {
   describe('countWords', () => {
     test('functionality', () => {
-      expect(countWords('this has some words')).toEqual(4)
-      expect(countWords('this . was cool')).toEqual(4)
+      expect(countWordsInString('this has some words')).toEqual(4)
+      expect(countWordsInString('this . was cool')).toEqual(4)
       expect(
-        countWords(
+        countWordsInString(
           'Mr. Johnson took a long look at the thing. Then he did\nthat.'
         )
-      ).toEqual(12) // this only separates on the [:space:] character, not newlines.
+      ).toEqual(13)
     })
   })
 
   describe('cleanText', () => {
-    test('funtionality', () => {
+    test('removing tags', () => {
       expect(
         cleanText(
-          'I am <strong>stronger</strong> than you, despite your <em>lean</em>.\n\nWhat about it?'
+          'I am <strong>stronger</strong> and <em><strong>nested</strong></em>'
         )
-      ).toEqual('I am stronger than you, despite your lean. What about it?')
+      ).toEqual('I am stronger and nested')
+    })
+    test('remove tag followed by punctuation', () => {
+      expect(
+        cleanText(
+          "What about <i>it<i>? <i>I</i> said <i>that</i> <u>was</u> <b>cool</b>... <i>but<i>, there's <u>something</u>! This is <em><strong>wild</strong></em>."
+        )
+      ).toEqual(
+        "What about it? I said that was cool... but, there's something! This is wild."
+      )
+    })
+    test('remove quotes', () => {
+      expect(cleanText('What would you say you "do" here?')).toEqual(
+        'What would you say you do here?'
+      )
+    })
+    test('removing everything needed', () => {
+      // chapter 6 from jekyll
+      expect(
+        cleanText(
+          'drew out and set before him an envelope addressed by the hand and sealed with the seal of his dead friend. “<strong>Private</strong>: for the hands of <span class="name">G. J.</span> Utterson <strong>alone</strong>, and in case of his predecease <em>to be destroyed unread</em>,” so it was emphatically superscribed; and the lawyer dreaded to behold the contents.'
+        )
+      ).toEqual(
+        'drew out and set before him an envelope addressed by the hand and sealed with the seal of his dead friend. “Private: for the hands of G. J. Utterson alone, and in case of his predecease to be destroyed unread,” so it was emphatically superscribed; and the lawyer dreaded to behold the contents.'
+      )
     })
   })
 })
@@ -67,7 +112,7 @@ describe('file utils', () => {
 
   describe('parseEpubAtPath', () => {
     test('existing file', async () => {
-      const epub = await parseEpubAtPath(pjoin(__dirname, 'jekyll-hyde.epub'))
+      const epub = await parseEpubAtPath(jekyllHydePath)
       expect(epub.metadata.title).toEqual(
         'The Strange Case of Dr. Jekyll and Mr. Hyde'
       )
@@ -79,7 +124,7 @@ describe('file utils', () => {
     })
     test('protected file', async () => {
       await expect(
-        parseEpubAtPath(pjoin(__dirname, 'the-martian.epub'))
+        parseEpubAtPath(pjoin(__dirname, 'books', 'the-martian.epub'))
       ).rejects.toThrow('DRM')
     })
     test('non-epub file', async () => {
@@ -93,7 +138,7 @@ describe('file utils', () => {
 describe('book-level operations', () => {
   let epub: EPub
   beforeAll(async () => {
-    epub = await parseEpubAtPath(pjoin(__dirname, 'jekyll-hyde.epub'))
+    epub = await parseEpubAtPath(jekyllHydePath)
   })
 
   test('getting chapters', async () => {
@@ -118,8 +163,6 @@ describe('book-level operations', () => {
     expect(characterCount).toBeLessThan(142500)
   })
 })
-
-describe('js functions', () => {})
 
 describe('cli', () => {
   // describe.skip('options', () => {
