@@ -56,18 +56,8 @@ const _cleanText = (text: string) => {
  * returns a stnadard, space-separated version of the input text
  */
 export const cleanText = (text: string): string => {
-  // keep cleaning text until there are no changes
-  let res
-  let last = text
-  while (true) {
-    res = _cleanText(last)
-    if (res === last) {
-      break
-    }
-    last = res
-  }
-
-  return decode(res)
+  // could loop here until there are no changes, but that's minimum 2x runs, plus most of what it catches after the first are just malformed in the first place
+  return _cleanText(text)
 }
 
 /**
@@ -88,17 +78,29 @@ export const shouldParseChapter = (chapter: TocElement): boolean => {
  * given a valid parsed book, returns an array of strings, where each string is a full chapter text
  */
 export const getTextInChapters = async (book: EPub): Promise<string[]> => {
-  const getTextForChapter = async (id: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      // using getChapter instead of getChapterRaw. the former of which pulls out style automatically
-      book.getChapter(id, (err: Error, text: string) => {
-        if (err) {
-          debug(err)
-          reject(err)
-        }
+  if (book.hasDRM()) {
+    return []
+  }
 
-        resolve(cleanText(text))
-      })
+  const getTextForChapter = async (id: string): Promise<string> => {
+    return new Promise(resolve => {
+      // using getChapter instead of getChapterRaw. the former of which pulls out style automatically
+      try {
+        book.getChapter(id, (err: Error, text: string) => {
+          if (err) {
+            debug(`failed to parse chapter id: ${id} because of error: ${err}`)
+            // eat the error
+            resolve('')
+          }
+
+          resolve(cleanText(text))
+        })
+      } catch (err) {
+        debug(
+          `hard failed to parse chapter id: ${id} because of error: "${err}" in book ${book.metadata.title}`
+        )
+        resolve('')
+      }
     })
   }
 
@@ -186,27 +188,40 @@ export const parseEpubAtPath = async (
   path: string,
   {
     imageWebRoot,
-    chapterWebRoot
-  }: { imageWebRoot?: string; chapterWebRoot?: string } = {}
+    chapterWebRoot,
+    throwForDrm = false,
+    throwForMalformed = false
+  }: {
+    imageWebRoot?: string
+    chapterWebRoot?: string
+    throwForDrm?: boolean
+    throwForMalformed?: boolean
+  } = {}
 ) => {
   // this could concievably fail for a path that ends in `.epub`. don't do that
   if (!path.endsWith('.epub')) {
     throw new Error('unable to parse non-epub file')
   }
+
   const epub = new EPub(path, imageWebRoot, chapterWebRoot)
   try {
     epub.parse()
   } catch (e) {
     const message = `${e.message} :: (path: "${path}")\n`
-    throw new Error(message)
+    if (throwForMalformed) {
+      throw new Error(message)
+    }
+    debug(message)
   }
 
   await promisifyEvent(epub, 'end')
 
   if (epub.hasDRM()) {
-    throw new Error(
-      `Unable to accurately count "${epub.metadata.title}" because it's DRM encumbered`
-    )
+    const message = `Unable to accurately count "${epub.metadata.title}" because it's DRM encumbered`
+    if (throwForDrm) {
+      throw new Error(message)
+    }
+    debug(message)
   }
 
   return epub

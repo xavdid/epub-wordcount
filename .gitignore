@@ -46,5 +46,4 @@ typings
 .node_repl_history
 
 # ts project
-*.js
-*.d.ts
+lib

@@ -52,7 +52,7 @@ describe('counting data', () => {
         )
       ).toEqual('I am stronger and nested')
     })
-    test.only('remove tag followed by punctuation', () => {
+    test('remove tag followed by punctuation', () => {
       expect(
         cleanText(
           "What about <i>it<i>? <i>I</i> said <i>that</i> <u>was</u> <b>cool</b>... <i>but<i>, there's <u>something</u>! This is <em><strong>wild</strong></em>."
@@ -122,9 +122,17 @@ describe('file utils', () => {
         parseEpubAtPath(pjoin(__dirname, 'blah.epub'))
       ).rejects.toThrow('Invalid/missing file')
     })
-    test('protected file', async () => {
+    test('protected file no throw', async () => {
+      const epub = await parseEpubAtPath(
+        pjoin(__dirname, 'books', 'the-martian.epub')
+      )
+      expect(epub.hasDRM()).toBeTruthy()
+    })
+    test('protected file throw', async () => {
       await expect(
-        parseEpubAtPath(pjoin(__dirname, 'books', 'the-martian.epub'))
+        parseEpubAtPath(pjoin(__dirname, 'books', 'the-martian.epub'), {
+          throwForDrm: true
+        })
       ).rejects.toThrow('DRM')
     })
     test('non-epub file', async () => {

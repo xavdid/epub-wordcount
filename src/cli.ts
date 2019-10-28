@@ -1,7 +1,16 @@
 #!/usr/bin/env node
 
 import cli = require('commander')
-import { getEpubPaths, getBookDetails, parseEpubAtPath } from '.'
+import {
+  getEpubPaths,
+  getBookDetails,
+  parseEpubAtPath,
+  countWordsInBook
+} from '.'
+
+import debugFunc from 'debug'
+
+const debug = debugFunc('wordcount')
 
 import updateNotifier = require('update-notifier')
 const pkg = require('../package.json')
@@ -18,10 +27,6 @@ cli
     '-f, --fragile',
     'fail on malformed epub files; default: print but skip'
   )
-  .option(
-    '-l, --loud',
-    'print warnings about inidividual chapters being weird; helpful for narrowing down parsing errors'
-  )
   .option('-c, --chars', 'count characters instead of words')
   .option('-t, --text', 'output the text content instead of a number')
   // .option('-r, --recurse', 'if PATH is a directory, also act on subdirectories')
@@ -35,17 +40,26 @@ const main = async () => {
   const input = cli.args[0]
   const paths = await getEpubPaths(input)
 
-  for (const path of paths) {
-    const book = await parseEpubAtPath(path)
-    const details = await getBookDetails(book)
-    console.log(details.title)
-    console.log('-'.repeat(details.title.length))
-    console.log(` * ${details.wordCount.toLocaleString()}`)
-  }
+  await Promise.all(
+    paths.map(async path => {
+      const book = await parseEpubAtPath(path, {
+        throwForMalformed: cli.fragile
+      })
+      const numWords = await countWordsInBook(book)
+      console.log(book.metadata.title)
+      console.log('-'.repeat(book.metadata.title.length))
+      console.log(
+        ` * ${book.hasDRM() ? 'DRM detected' : numWords.toLocaleString()}\n`
+      )
+    })
+  )
 }
 
 main().catch(e => {
-  console.error(`ERR: ${e.message}`)
+  debug(e)
+  console.error(
+    `ERR: ${e.message}. Re-run command with "DEBUG=wordcount" to see more info`
+  )
   process.exitCode = 1
 })
 
