@@ -1,15 +1,19 @@
 import {
   countCharactersInBook,
   countWordsInBook,
+  getEpubPaths,
   getTextInChapters,
-  parseEpubAtPath
+  parseEpubAtPath,
+  getBookDetails
 } from './utils'
 
 export {
   countCharactersInBook,
   countWordsInBook,
+  getEpubPaths,
   getTextInChapters,
-  parseEpubAtPath
+  parseEpubAtPath,
+  getBookDetails
 }
 
 export const countWords = async (path: string) => {

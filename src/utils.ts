@@ -18,7 +18,7 @@ export interface Options {
   text?: boolean
 }
 
-// temporarily copied from the epub defs
+// TODO: temporarily copied from the epub defs they should export this properly
 interface TocElement {
   level: number
   order: number
@@ -30,27 +30,28 @@ interface TocElement {
 type PromisifyEvent = (server: any, event: string) => Promise<void>
 const promisifyEvent: PromisifyEvent = require('promisify-event')
 
-const ignoredTitlesRegex = /acknowledgment|copyright|cover|dedication|title|author|contents/i
 // match all html tags, no matter their contents
 const htmlRegex = /(<([^>]+)>)/gi
+const floatingChars = ['.', '?', '!', ':', ';', ',']
 
-const _cleanText = (text: string) =>
-  text
-    .replace(htmlRegex, ' ') // these are replaced by spaces so that newlines in the text are properly tokenized
+const _cleanText = (text: string) => {
+  // a sentence that ends with a tag followed by a period was leaving an extra space
+  let result = text
 
-    // TODO: better way to replace this all?
-    .replace(/ \./g, '.') // a sentence that ends with a tag followed by a period was leaving an extra space
-    .replace(/ \?/g, '?') // same with all of these
-    .replace(/ !/g, '!')
-    .replace(/ :/g, ':')
-    .replace(/ ;/g, ';')
-    .replace(/ ,/g, ',')
+  result = result
+    .replace(htmlRegex, ' ') // these are replaced by spaces so that newlines in the text are properly tokenizedz
     .replace(/“ /g, '“')
     .replace(/ ”/g, '”')
     .replace(/"/g, '') // non-smart quotes complicate spaces and counting words, but don't really matter
     .replace(/\s+/g, ' ')
     .trim()
 
+  floatingChars.forEach(c => {
+    result = result.replace(new RegExp(` \\${c}`, 'g'), c)
+  })
+
+  return result
+}
 /**
  * returns a stnadard, space-separated version of the input text
  */
@@ -78,6 +79,7 @@ export const countWordsInString = (text: string) => {
 
 // TODO: be smarter about this
 // id also has info?
+const ignoredTitlesRegex = /acknowledgment|copyright|cover|dedication|title|author|contents/i
 export const shouldParseChapter = (chapter: TocElement): boolean => {
   return !Boolean(chapter.title) || !chapter.title.match(ignoredTitlesRegex)
 }
@@ -115,67 +117,67 @@ export const getTextInChapters = async (book: EPub): Promise<string[]> => {
 /**
  * TODO: Remove
  */
-// const oldMain = async (epub: EPub, options: Options) => {
-//   const getCleanTextForChapter = async (id: string): Promise<string> => {
-//     return new Promise((resolve, reject) => {
-//       // getChapter strips most html, which is awesome
-//       epub.getChapter(id, (err: Error, text: string) => {
-//         if (err) {
-//           reject(err)
-//         }
+const oldMain = async (epub: EPub, options: Options) => {
+  const getCleanTextForChapter = async (id: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      // getChapter strips most html, which is awesome
+      epub.getChapter(id, (err: Error, text: string) => {
+        if (err) {
+          reject(err)
+        }
 
-//         resolve(cleanText(text))
-//       })
-//     })
-//   }
+        resolve(cleanText(text))
+      })
+    })
+  }
 
-//   const chapters = []
-//   for (const chapter of epub.flow) {
-//     if (shouldParseChapter(chapter)) {
-//       try {
-//         const res = await getCleanTextForChapter(chapter.id)
-//         chapters.push(res)
-//       } catch (e) {
-//         if (!options.quiet) {
-//           console.log(
-//             `Issue with chapter ${chapter.id} in book ${epub.metadata.title}`
-//           )
-//         }
-//       }
-//     }
-//   }
+  const chapters = []
+  for (const chapter of epub.flow) {
+    if (shouldParseChapter(chapter)) {
+      try {
+        const res = await getCleanTextForChapter(chapter.id)
+        chapters.push(res)
+      } catch (e) {
+        if (!options.quiet) {
+          console.log(
+            `Issue with chapter ${chapter.id} in book ${epub.metadata.title}`
+          )
+        }
+      }
+    }
+  }
 
-//   if (epub.hasDRM()) {
-//     if (options.print) {
-//       console.log(' * DRM detected')
-//     }
-//     return -1
-//   }
+  if (epub.hasDRM()) {
+    if (options.print) {
+      console.log(' * DRM detected')
+    }
+    return -1
+  }
 
-//   if (options.text) {
-//     if (options.print) {
-//       console.log(chapters.join('\n'))
-//     }
-//     return chapters.join('\n')
-//   } else {
-//     // to modify this, return the most basic version of this
-//     const count = 33 // chapters.reduce((a, c) => a + nCount(options, c), 0)
-//     if (options.print) {
-//       const metadata = epub.metadata
-//       console.log(metadata.title)
-//       console.log('-'.repeat(metadata.title.length))
+  if (options.text) {
+    if (options.print) {
+      console.log(chapters.join('\n'))
+    }
+    return chapters.join('\n')
+  } else {
+    // to modify this, return the most basic version of this
+    const count = 33 // chapters.reduce((a, c) => a + nCount(options, c), 0)
+    if (options.print) {
+      const metadata = epub.metadata
+      console.log(metadata.title)
+      console.log('-'.repeat(metadata.title.length))
 
-//       console.log(
-//         ` * ${count.toLocaleString()} ` +
-//           (options.chars ? 'characters' : 'words')
-//       )
+      console.log(
+        ` * ${count.toLocaleString()} ` +
+          (options.chars ? 'characters' : 'words')
+      )
 
-//       console.log()
-//     }
+      console.log()
+    }
 
-//     return count
-//   }
-// }
+    return count
+  }
+}
 
 /**
  * given a path, returns a parsed, DRM-free epub file, ready for use.
@@ -203,7 +205,7 @@ export const parseEpubAtPath = async (
 
   if (epub.hasDRM()) {
     throw new Error(
-      `Unable to accurately count "${epub.metadata.title}" because it's DRM protected`
+      `Unable to accurately count "${epub.metadata.title}" because it's DRM encumbered`
     )
   }
 
@@ -231,52 +233,32 @@ export const getEpubPaths = async (fpath: string): Promise<string[]> => {
   return []
 }
 
-// takes a path to an ebook file
-// export const countWordsForFileAtPath = async (
-//   path: string,
-//   {
-//     print = false,
-//     sturdy = false,
-//     quiet = false,
-//     chars = false,
-//     text = false
-//   }: Options = {}
-// ) => {
-//   const epub = new EPub(path)
-//   try {
-//     epub.parse()
-//   } catch (e) {
-//     const message = `${e.message} :: (path: "${path}")\n`
-//     // console.log('might throw', sturdy)
-//     if (sturdy) {
-//       console.log(message)
-//     } else {
-//       throw new Error(message)
-//     }
-//   }
-
-//   await promisifyEvent(epub, 'end')
-//   if (!sturdy && epub.hasDRM()) {
-//     throw new Error(
-//       `Unable to accurately count "${epub.metadata.title}" because it's DRM protected`
-//     )
-//   } else {
-//     return oldMain(epub, { print, sturdy, quiet, chars, text })
-//   }
-// }
-
-export const countWordsInBook = async (book: EPub): Promise<number> => {
-  const chapterTexts = await getTextInChapters(book)
-  return chapterTexts.reduce(
+const getWordCountsForChapters = (chapters: string[]): number =>
+  chapters.reduce(
     (total, chapterText) => countWordsInString(chapterText) + total,
     0
   )
+
+const getCharacterCountsForChapters = (chapters: string[]): number =>
+  chapters.reduce((total, chapterText) => chapterText.length + total, 0)
+
+export const countWordsInBook = async (book: EPub): Promise<number> => {
+  const chapterTexts = await getTextInChapters(book)
+  return getWordCountsForChapters(chapterTexts)
 }
 
 export const countCharactersInBook = async (book: EPub): Promise<number> => {
   const chapterTexts = await getTextInChapters(book)
-  return chapterTexts.reduce(
-    (total, chapterText) => chapterText.length + total,
-    0
-  )
+  return getCharacterCountsForChapters(chapterTexts)
+}
+
+// this mostly combines the above
+export const getBookDetails = async (book: EPub) => {
+  const chapterTexts = await getTextInChapters(book)
+  return {
+    text: chapterTexts.join('\n'),
+    characterCount: getCharacterCountsForChapters(chapterTexts),
+    wordCount: getWordCountsForChapters(chapterTexts),
+    title: book.metadata.title
+  }
 }

@@ -52,7 +52,7 @@ describe('counting data', () => {
         )
       ).toEqual('I am stronger and nested')
     })
-    test('remove tag followed by punctuation', () => {
+    test.only('remove tag followed by punctuation', () => {
       expect(
         cleanText(
           "What about <i>it<i>? <i>I</i> said <i>that</i> <u>was</u> <b>cool</b>... <i>but<i>, there's <u>something</u>! This is <em><strong>wild</strong></em>."
