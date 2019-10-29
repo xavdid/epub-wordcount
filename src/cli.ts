@@ -3,10 +3,13 @@
 import cli = require('commander')
 import {
   getEpubPaths,
-  getBookDetails,
+  getTextFromBook,
   parseEpubAtPath,
-  countWordsInBook
+  countWordsInBook,
+  countCharactersInBook
 } from '.'
+
+import { uniq } from 'lodash'
 
 import debugFunc from 'debug'
 
@@ -19,38 +22,76 @@ updateNotifier({ pkg }).notify()
 // MAIN
 
 cli
-  .usage('[options] PATH')
+  .usage('[options] PATHS...')
   .description('count the words in an epub file')
   .version(pkg.version)
-  .option('-r, --raw', 'print out an array of word counts without the frivolty')
   .option(
-    '-f, --fragile',
-    'fail on malformed epub files; default: print but skip'
+    '-r, --raw',
+    'print out the numeric count value without the book title. only works on a single file, not a directory'
   )
-  .option('-c, --chars', 'count characters instead of words')
-  .option('-t, --text', 'output the text content instead of a number')
-  // .option('-r, --recurse', 'if PATH is a directory, also act on subdirectories')
+  .option('-c, --chars', 'print character count instead of word count')
+  .option('-t, --text', 'print entire text of the file instead of word count')
+
   .parse(process.argv)
 
 const main = async () => {
   if (!cli.args.length) {
-    throw new Error('Must supply a path')
+    console.log(cli.help())
+    return
   }
 
-  const input = cli.args[0]
-  const paths = await getEpubPaths(input)
+  const rawPaths = cli.args
+  // recurse and flatten
+  const paths = uniq(
+    (await Promise.all(rawPaths.map(getEpubPaths))).reduce(
+      (res, path) => res.concat(path),
+      []
+    )
+  )
+
+  if (paths.length > 1 && cli.raw) {
+    throw new Error(
+      'unable to parse a directory in raw mode. either pick a single file or remove the "-r" flag'
+    )
+  }
+
+  if (cli.chars && cli.text) {
+    throw new Error(
+      'only specify one of row and text, since only one can be printed'
+    )
+  }
 
   await Promise.all(
     paths.map(async path => {
-      const book = await parseEpubAtPath(path, {
-        throwForMalformed: cli.fragile
-      })
-      const numWords = await countWordsInBook(book)
-      console.log(book.metadata.title)
-      console.log('-'.repeat(book.metadata.title.length))
-      console.log(
-        ` * ${book.hasDRM() ? 'DRM detected' : numWords.toLocaleString()}\n`
-      )
+      const book = await parseEpubAtPath(path)
+      if (cli.text) {
+        console.log((await getTextFromBook(book)).join(''))
+      } else {
+        let message
+        let result
+        if (book.hasDRM()) {
+          message = `DRM detected`
+        } else if (cli.chars) {
+          result = await countCharactersInBook(book)
+          message = `${result.toLocaleString()} characters`
+        } else {
+          result = await countWordsInBook(book)
+          message = `${result.toLocaleString()} words`
+        }
+
+        if (cli.raw) {
+          if (result) {
+            console.log(result)
+          } else {
+            debug('drm found, not printing')
+          }
+        } else {
+          // these have to go together or they print wrong
+          console.log(book.metadata.title)
+          console.log('-'.repeat(book.metadata.title.length))
+          console.log(`  * ${message}\n`)
+        }
+      }
     })
   )
 }
@@ -62,28 +103,3 @@ main().catch(e => {
   )
   process.exitCode = 1
 })
-
-// if (!cli.args.length) {
-//   console.error('Must supply a path')
-//   process.exitCode = 1
-// } else {
-//   const fpath = cli.args[0]
-//   const opts: wc.Options = {
-//     print: !cli.raw,
-//     sturdy: !cli.sturdy,
-//     quiet: !cli.loud,
-//     chars: cli.chars,
-//     text: cli.text
-//   }
-
-//   parsePath(fpath, opts)
-//     .then(res => {
-//       if (!opts.print) {
-//         console.log(res)
-//       }
-//     })
-//     .catch(e => {
-//       console.error(e)
-//       process.exitCode = 1
-//     })
-// }

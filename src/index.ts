@@ -2,7 +2,7 @@ import {
   countCharactersInBook,
   countWordsInBook,
   getEpubPaths,
-  getTextInChapters,
+  getTextFromBook,
   parseEpubAtPath,
   getBookDetails
 } from './utils'
@@ -11,7 +11,7 @@ export {
   countCharactersInBook,
   countWordsInBook,
   getEpubPaths,
-  getTextInChapters,
+  getTextFromBook,
   parseEpubAtPath,
   getBookDetails
 }

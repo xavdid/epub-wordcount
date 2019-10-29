@@ -4,14 +4,44 @@ import {
   cleanText,
   getEpubPaths,
   parseEpubAtPath,
-  getTextInChapters,
+  getTextFromBook,
   countCharactersInBook,
   countWordsInBook,
   shouldParseChapter
 } from '../src/utils'
 import { join as pjoin } from 'path'
 
-const jekyllHydePath = pjoin(__dirname, 'books', 'jekyll-hyde.epub')
+import { spawnSync } from 'child_process'
+
+// helpers
+const countInStr = (input: string, search: string) =>
+  (input.match(new RegExp(`\\${search}`, 'g')) || []).length
+
+const runCommandSync = (cmd: string, args?: string[]) => {
+  const { stdout, stderr, status } = spawnSync(cmd, args, {
+    encoding: 'utf8'
+  })
+  if (status) {
+    throw new Error(stderr || stdout)
+  }
+  return stdout
+}
+const cliPath = pjoin(__dirname, '../lib/cli.js')
+const booksPath = pjoin(__dirname, 'books')
+const jekyllHydePath = pjoin(booksPath, 'jekyll-hyde.epub')
+const martianPath = pjoin(booksPath, 'the-martian.epub')
+
+const invokeCli = (args: string[]) => runCommandSync('node', [cliPath, ...args])
+
+describe('helper', () => {
+  test('functionality', () => {
+    expect(countInStr('*whoa*cool*adsf', '*')).toEqual(3)
+    expect(countInStr("i'm, walking, here", ',')).toEqual(2)
+    expect(
+      countInStr('asdf\n----\n  * 123,234\n\nqer---\n  * DRM detected', '*')
+    ).toEqual(2)
+  })
+})
 
 describe('should parse chapter', () => {
   test('falsy title', () => {
@@ -150,7 +180,7 @@ describe('book-level operations', () => {
   })
 
   test('getting chapters', async () => {
-    const chapters = await getTextInChapters(epub)
+    const chapters = await getTextFromBook(epub)
     // chapters.forEach((c, i) => console.log(`${i}: ${c.length}`))
     expect(chapters.length).toEqual(13) // might change if I get better heuristics about which chapters to parse
     expect(chapters[0].length).toBeGreaterThan(100)
@@ -159,7 +189,7 @@ describe('book-level operations', () => {
   test('counting words', async () => {
     const wordCount = await countWordsInBook(epub)
 
-    // real answer is 25,820
+    // real answer from the site is 25,820
     expect(wordCount).toBeGreaterThan(26000)
     expect(wordCount).toBeLessThan(27000)
   })
@@ -173,41 +203,64 @@ describe('book-level operations', () => {
 })
 
 describe('cli', () => {
-  // describe.skip('options', () => {
-  //   describe('sturdy mode', () => {
-  //     it('should not throw in sturdy mode', () => {
-  //       expect(() =>
-  //         wordCount.countWords('./asdf', { sturdy: true })
-  //       ).not.toThrow()
-  //       // make assertion about stdout
-  //     })
-  //     it('should throw when not sturdy mode', () => {
-  //       // this doesn't work, which makes me think the above isn't working either
-  //       expect(async () => wordCount.countWords('./asdf')).toThrow()
-  //       // make assertion about stdout
-  //     })
-  //   })
-  describe('quiet mode', () => {
-    it('should work when quiet', () => {
-      // stdout should be empty
+  describe('basic operation', () => {
+    test('single file input', () => {
+      const output = invokeCli([jekyllHydePath])
+      expect(countInStr(output, ',')).toEqual(1)
+      expect(countInStr(output, '*')).toEqual(1)
+      expect(output.includes('Jekyll')).toBeTruthy()
     })
-    it('should work when not quiet', () => {
-      // stdout should have an asterisk and a dnumber
+    test('multi file input', () => {
+      const output = invokeCli([jekyllHydePath, martianPath])
+      expect(countInStr(output, ',')).toEqual(1)
+      expect(countInStr(output, '*')).toEqual(2)
+      expect(output.includes('Jekyll')).toBeTruthy()
     })
-  })
-
-  describe('text mode', () => {
-    it('should print the full text', () => {
-      // stdout should be long
-      // it should also have the same result when piped into `wc` as when run in js
+    test('directory input', () => {
+      const output = invokeCli([booksPath])
+      expect(countInStr(output, ',')).toEqual(1)
+      expect(countInStr(output, '*')).toEqual(2)
+      expect(countInStr(output, 'Jekyll')).toEqual(1)
+      expect(countInStr(output, 'Martian')).toEqual(1)
+      expect(countInStr(output, 'DRM')).toEqual(1)
     })
   })
 
-  describe('character mode', () => {
-    it('should print the character count', () => {
-      // stdout should be long
-      // it should also have the same result when piped into `wc` as when run in js
-    })
+  test('raw mode', () => {
+    const output = invokeCli([jekyllHydePath, '-r'])
+    expect(output.includes('*')).toBeFalsy()
+    expect(output.includes(',')).toBeFalsy()
+    expect(output.includes('Jekyll')).toBeFalsy()
+    expect(output.startsWith('26')).toBeTruthy()
+    expect(Number.isNaN(parseInt(output, 10))).toBeFalsy()
   })
-  // })
+
+  test('raw+DRM mode', () => {
+    const output = invokeCli([martianPath, '-r'])
+    expect(output).toEqual('')
+  })
+
+  test('raw character mode', () => {
+    const output = invokeCli([jekyllHydePath, '-rc'])
+    expect(output.includes('*')).toBeFalsy()
+    expect(output.includes(',')).toBeFalsy()
+    expect(output.includes('Jekyll')).toBeFalsy()
+    expect(output.startsWith('1424')).toBeTruthy()
+    expect(Number.isNaN(parseInt(output, 10))).toBeFalsy()
+  })
+
+  test('text mode', () => {
+    const output = invokeCli([jekyllHydePath, '-t'])
+    expect(output.length).toBeGreaterThan(142400)
+    expect(output.length).toBeLessThan(142500)
+  })
+
+  test('raw multi should throw', () => {
+    expect(() => invokeCli([jekyllHydePath, martianPath, '-r'])).toThrow(
+      'either'
+    )
+  })
+  test('chars and text should throw', () => {
+    expect(() => invokeCli([jekyllHydePath, '-ct'])).toThrow('only specify one')
+  })
 })

@@ -36,7 +36,7 @@ const floatingChars = ['.', '?', '!', ':', ';', ',']
 
 const _cleanText = (text: string) => {
   // a sentence that ends with a tag followed by a period was leaving an extra space
-  let result = text
+  let result = decode(text)
 
   result = result
     .replace(htmlRegex, ' ') // these are replaced by spaces so that newlines in the text are properly tokenizedz
@@ -77,7 +77,7 @@ export const shouldParseChapter = (chapter: TocElement): boolean => {
 /**
  * given a valid parsed book, returns an array of strings, where each string is a full chapter text
  */
-export const getTextInChapters = async (book: EPub): Promise<string[]> => {
+export const getTextFromBook = async (book: EPub): Promise<string[]> => {
   if (book.hasDRM()) {
     return []
   }
@@ -104,7 +104,7 @@ export const getTextInChapters = async (book: EPub): Promise<string[]> => {
     })
   }
 
-  const chapters: string[] = (await Promise.all(
+  return (await Promise.all(
     book.flow.map(async chapter => {
       if (!shouldParseChapter(chapter)) {
         return ''
@@ -112,73 +112,6 @@ export const getTextInChapters = async (book: EPub): Promise<string[]> => {
       return getTextForChapter(chapter.id)
     })
   )).filter(Boolean)
-
-  return chapters
-}
-
-/**
- * TODO: Remove
- */
-const oldMain = async (epub: EPub, options: Options) => {
-  const getCleanTextForChapter = async (id: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      // getChapter strips most html, which is awesome
-      epub.getChapter(id, (err: Error, text: string) => {
-        if (err) {
-          reject(err)
-        }
-
-        resolve(cleanText(text))
-      })
-    })
-  }
-
-  const chapters = []
-  for (const chapter of epub.flow) {
-    if (shouldParseChapter(chapter)) {
-      try {
-        const res = await getCleanTextForChapter(chapter.id)
-        chapters.push(res)
-      } catch (e) {
-        if (!options.quiet) {
-          console.log(
-            `Issue with chapter ${chapter.id} in book ${epub.metadata.title}`
-          )
-        }
-      }
-    }
-  }
-
-  if (epub.hasDRM()) {
-    if (options.print) {
-      console.log(' * DRM detected')
-    }
-    return -1
-  }
-
-  if (options.text) {
-    if (options.print) {
-      console.log(chapters.join('\n'))
-    }
-    return chapters.join('\n')
-  } else {
-    // to modify this, return the most basic version of this
-    const count = 33 // chapters.reduce((a, c) => a + nCount(options, c), 0)
-    if (options.print) {
-      const metadata = epub.metadata
-      console.log(metadata.title)
-      console.log('-'.repeat(metadata.title.length))
-
-      console.log(
-        ` * ${count.toLocaleString()} ` +
-          (options.chars ? 'characters' : 'words')
-      )
-
-      console.log()
-    }
-
-    return count
-  }
 }
 
 /**
@@ -189,13 +122,11 @@ export const parseEpubAtPath = async (
   {
     imageWebRoot,
     chapterWebRoot,
-    throwForDrm = false,
-    throwForMalformed = false
+    throwForDrm = false
   }: {
     imageWebRoot?: string
     chapterWebRoot?: string
     throwForDrm?: boolean
-    throwForMalformed?: boolean
   } = {}
 ) => {
   // this could concievably fail for a path that ends in `.epub`. don't do that
@@ -208,10 +139,7 @@ export const parseEpubAtPath = async (
     epub.parse()
   } catch (e) {
     const message = `${e.message} :: (path: "${path}")\n`
-    if (throwForMalformed) {
-      throw new Error(message)
-    }
-    debug(message)
+    throw new Error(message)
   }
 
   await promisifyEvent(epub, 'end')
@@ -232,11 +160,6 @@ export const getEpubPaths = async (fpath: string): Promise<string[]> => {
   if (stat.isDirectory()) {
     const files = await fs.readdir(fpath)
 
-    // const newPaths: string[] = []
-    // for (const p of files) {
-    //   newPaths.concat(await getEpubPaths(p))
-    // }
-    // return newPaths
     const recursedPaths = await Promise.all(
       files.map(f => getEpubPaths(pjoin(fpath, f)))
     )
@@ -258,22 +181,21 @@ const getCharacterCountsForChapters = (chapters: string[]): number =>
   chapters.reduce((total, chapterText) => chapterText.length + total, 0)
 
 export const countWordsInBook = async (book: EPub): Promise<number> => {
-  const chapterTexts = await getTextInChapters(book)
+  const chapterTexts = await getTextFromBook(book)
   return getWordCountsForChapters(chapterTexts)
 }
 
 export const countCharactersInBook = async (book: EPub): Promise<number> => {
-  const chapterTexts = await getTextInChapters(book)
+  const chapterTexts = await getTextFromBook(book)
   return getCharacterCountsForChapters(chapterTexts)
 }
 
 // this mostly combines the above
 export const getBookDetails = async (book: EPub) => {
-  const chapterTexts = await getTextInChapters(book)
+  const chapterTexts = await getTextFromBook(book)
   return {
     text: chapterTexts.join('\n'),
     characterCount: getCharacterCountsForChapters(chapterTexts),
-    wordCount: getWordCountsForChapters(chapterTexts),
-    title: book.metadata.title
+    wordCount: getWordCountsForChapters(chapterTexts)
   }
 }
