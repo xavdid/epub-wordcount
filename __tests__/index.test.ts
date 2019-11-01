@@ -1,3 +1,6 @@
+import { join as pjoin } from 'path'
+import { spawnSync } from 'child_process'
+
 import EPub = require('epub')
 import {
   countWordsInString,
@@ -9,9 +12,8 @@ import {
   countWordsInBook,
   shouldParseChapter
 } from '../src/utils'
-import { join as pjoin } from 'path'
 
-import { spawnSync } from 'child_process'
+import { countWords, countCharacters, getText } from '../src/index'
 
 // helpers
 const countInStr = (input: string, search: string) =>
@@ -262,5 +264,37 @@ describe('cli', () => {
   })
   test('chars and text should throw', () => {
     expect(() => invokeCli([jekyllHydePath, '-ct'])).toThrow('only specify one')
+  })
+})
+
+describe('index', () => {
+  test('countWords', async () => {
+    const wordCount = await countWords(jekyllHydePath)
+    expect(wordCount).toBeGreaterThan(26000)
+    expect(wordCount).toBeLessThan(27000)
+
+    const bookWordCount = await countWords(
+      await parseEpubAtPath(jekyllHydePath)
+    )
+    expect(bookWordCount).toBeGreaterThan(26000)
+    expect(bookWordCount).toBeLessThan(27000)
+  })
+  test('countCharacters', async () => {
+    const characterCount = await countCharacters(jekyllHydePath)
+    expect(characterCount).toBeGreaterThan(142400)
+    expect(characterCount).toBeLessThan(142500)
+
+    const bookCharacterCount = await countCharacters(
+      await parseEpubAtPath(jekyllHydePath)
+    )
+    expect(bookCharacterCount).toBeGreaterThan(142400)
+    expect(bookCharacterCount).toBeLessThan(142500)
+  })
+  test('getText', async () => {
+    const chapters = await getText(jekyllHydePath)
+    expect(chapters.length).toEqual(13)
+
+    const bookChapters = await getText(await parseEpubAtPath(jekyllHydePath))
+    expect(bookChapters.length).toEqual(13)
   })
 })
