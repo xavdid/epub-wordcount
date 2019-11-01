@@ -7,7 +7,7 @@ import {
   parseEpubAtPath,
   countWordsInBook,
   countCharactersInBook
-} from '.'
+} from './utils'
 
 import { uniq } from 'lodash'
 
@@ -87,6 +87,7 @@ const main = async () => {
           }
         } else {
           // these have to go together or they print wrong
+          console.log()
           console.log(book.metadata.title)
           console.log('-'.repeat(book.metadata.title.length))
           console.log(`  * ${message}\n`)

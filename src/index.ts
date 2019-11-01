@@ -1,33 +1,51 @@
+import EPub = require('epub')
 import {
   countCharactersInBook,
   countWordsInBook,
-  getEpubPaths,
   getTextFromBook,
-  parseEpubAtPath,
-  getBookDetails
+  parseEpubAtPath
 } from './utils'
 
-export {
-  countCharactersInBook,
-  countWordsInBook,
-  getEpubPaths,
-  getTextFromBook,
-  parseEpubAtPath,
-  getBookDetails
-}
+export { parseEpubAtPath }
 
-export const countWords = async (path: string) => {
-  const book = await parseEpubAtPath(path)
+const performOperationOnBook = async (
+  pathOrEpub: string | EPub,
+  operation: (book: EPub) => any
+) => {
+  let book: EPub
+  if (typeof pathOrEpub === 'string') {
+    book = await parseEpubAtPath(pathOrEpub)
+  } else {
+    book = pathOrEpub
+  }
   if (book.hasDRM()) {
     return -1
   }
-  return countWordsInBook(book)
+  return operation(book)
 }
 
-export const countCharacters = async (path: string) => {
-  const book = await parseEpubAtPath(path)
-  if (book.hasDRM()) {
-    return -1
-  }
-  return countCharactersInBook(book)
-}
+type pathOrBook = string | EPub
+
+/**
+ * given a path to a valid epub file (or a file that's been parsed by `parseEpubAtPath`), return the word count
+ */
+export const countWords = async (
+  pathOrEpub: pathOrBook
+): ReturnType<typeof countWordsInBook> =>
+  performOperationOnBook(pathOrEpub, countWordsInBook)
+
+/**
+ * given a path to a valid epub file (or a file that's been parsed by `parseEpubAtPath`), return the character count
+ */
+export const countCharacters = async (
+  pathOrEpub: pathOrBook
+): ReturnType<typeof countCharactersInBook> =>
+  performOperationOnBook(pathOrEpub, countCharactersInBook)
+
+/**
+ * given a path to a valid epub file (or a file that's been parsed by `parseEpubAtPath`), return all the text in the book
+ */
+export const getText = async (
+  pathOrEpub: pathOrBook
+): ReturnType<typeof getTextFromBook> =>
+  performOperationOnBook(pathOrEpub, getTextFromBook)

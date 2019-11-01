@@ -2,13 +2,29 @@
 
 Given an epub file, do our best to count the number of words in it.
 
-## Usage
+## Basic Usage
 
-```javascript
-epub = require('epub-wordcount')
+On the CLI:
 
-epub.countWords('some-book.epub').then(c => {
-  console.log(`There are ${c} words`)
+```
+% word-count path/to/book.epub
+
+The Strange Case of Dr. Jekyll and Mr. Hyde
+-------------------------------------------
+  * 26,341 words
+```
+
+In code:
+
+```ts
+// TS:
+import { countWords } from 'epub-wordcount'
+
+// JS:
+// const { countWords } = require('epub-wordcount')
+
+countWords('./books/some-book.epub').then(numWords => {
+  console.log(`There are ${numWords} words`)
 })
 // There are 106190 words
 ```
@@ -29,31 +45,29 @@ word-count directory/of/books
 
 See `word-count -h` for more info
 
+### Options
+
+- `-c, --chars` - Print the character count instead of the world count
+- `-r, --raw` - Instead of printing the nice title, just print out a numeral
+- `-t, --text` - Print out the whole text of the book. Great for passing into other unix functions, like `wc`.
+
+## Code API
+
+There are a number of functions exported from this package. Each one takes either a path to a file or an already-parsed file. Mostly you'll use the path, but if the epub you're parsing is in a non-standard format, then you might use that function to ensure the file parses correctly. See [here](https://github.com/julien-c/epub#usage) for the options available.
+
+- `countWords(pathOrEpub) => Promise<number>`
+- `countCharacters(pathOrEpub) => Promise<number>`
+- `getText(pathOrEpub) => Promise<string[]>`
+
+Each of the above can be passed the result of the following:
+
+- `parseEpubAtPath(path) => Promise<EPub>`
+
 ## Limitations
 
 There's no programmatic representation for the table of contents in epub and it's hard to skip over the reviews, copyright, etc. An effort is made to only parse the actual story text, but there's a margin of error. Probably no more than ~500 words.
 
 Pull requests welcome.
-
-## API
-
-`countWords(path, [options]) => Promise<number>`
-
-### path(`string`)
-
-Path to (what is hopefully) an epub file. Opens it, and returns a promise that resolves to the number of words in the book.
-
-### options
-
-Object of options. It's optional, I don't know your life.
-
-| key    | type    | function                                                 | default |
-| ------ | ------- | -------------------------------------------------------- | ------- |
-| print  | boolean | print a nice message with data included for each file    | false   |
-| sturdy | boolean | bravely ignore errors on missing or malformed epub file  | false   |
-| quiet  | boolean | stifle errors in parsing chapters                        | false   |
-| chars  | boolean | count characters, including spaces, instead of words.    | false   |
-| text   | boolean | output the cleaned text which would be used for counting | false   |
 
 ## Test Books
 

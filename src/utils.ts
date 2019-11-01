@@ -1,22 +1,12 @@
 import EPub = require('epub')
 import decode = require('parse-entities')
-import * as fs from 'mz/fs'
+import promisifyEvent = require('promisify-event')
 
-import * as _ from 'lodash'
-
+import { stat, readdir } from 'mz/fs'
 import { join as pjoin } from 'path'
-
 import debugFunc from 'debug'
 
 const debug = debugFunc('wordcount')
-
-export interface Options {
-  print?: boolean
-  sturdy?: boolean
-  quiet?: boolean
-  chars?: boolean
-  text?: boolean
-}
 
 // TODO: temporarily copied from the epub defs they should export this properly
 interface TocElement {
@@ -26,9 +16,6 @@ interface TocElement {
   id: string
   href?: string
 }
-
-type PromisifyEvent = (server: any, event: string) => Promise<void>
-const promisifyEvent: PromisifyEvent = require('promisify-event')
 
 // match all html tags, no matter their contents
 const htmlRegex = /(<([^>]+)>)/gi
@@ -75,7 +62,7 @@ export const shouldParseChapter = (chapter: TocElement): boolean => {
 }
 
 /**
- * given a valid parsed book, returns an array of strings, where each string is a full chapter text
+ * given a valid parsed book, returns an array of strings. Each array element is the full text of a chapter.
  */
 export const getTextFromBook = async (book: EPub): Promise<string[]> => {
   if (book.hasDRM()) {
@@ -115,7 +102,7 @@ export const getTextFromBook = async (book: EPub): Promise<string[]> => {
 }
 
 /**
- * given a path, returns a parsed, DRM-free epub file, ready for use.
+ * given a path, returns a parsed, DRM-free epub file, ready for use. Takes extra [options](https://github.com/julien-c/epub#usage), useful for parsing non-default epubs. See [here](https://github.com/julien-c/epub#usage) for more info
  */
 export const parseEpubAtPath = async (
   path: string,
@@ -156,9 +143,9 @@ export const parseEpubAtPath = async (
 }
 
 export const getEpubPaths = async (fpath: string): Promise<string[]> => {
-  const stat = await fs.stat(fpath)
-  if (stat.isDirectory()) {
-    const files = await fs.readdir(fpath)
+  const statRes = await stat(fpath)
+  if (statRes.isDirectory()) {
+    const files = await readdir(fpath)
 
     const recursedPaths = await Promise.all(
       files.map(f => getEpubPaths(pjoin(fpath, f)))

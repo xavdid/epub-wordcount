@@ -10,7 +10,6 @@
       "es2017",
       "dom"
     ],
-    // "jsx": "react"
     "declaration": true
   },
   "exclude": ["__tests__", "lib"]
