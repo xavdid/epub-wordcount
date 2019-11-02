@@ -4,29 +4,46 @@
   "description": "Count the number of words in an ebook",
   "main": "index.js",
   "dependencies": {
-    "commander": "^2.9.0",
+    "commander": "3.0.2",
+    "debug": "4.1.1",
     "epub": "xavdid/epub",
-    "lodash": "^4.15.0",
-    "mz": "^2.6.0",
-    "parse-entities": "^1.2.2",
-    "promisify-event": "^1.0.0",
-    "update-notifier": "^2.2.0"
+    "lodash": "^4",
+    "mz": "^2.7.0",
+    "parse-entities": "1.2.2",
+    "promisify-event": "1.0.0",
+    "update-notifier": "^2.2"
   },
   "bin": {
-    "word-count": "./cli.js"
+    "word-count": "./lib/cli.js"
   },
-  "types": "index.d.ts",
+  "files": [
+    "lib/*.js",
+    "index.d.ts",
+    "utils.d.ts"
+  ],
+  "types": "lib/index.d.ts",
   "devDependencies": {
-    "typescript": "^2.0.2",
-    "@types/commander": "^2.9.0",
-    "@types/lodash": "^4.14.34",
-    "@types/mz": "0.0.31",
-    "@types/update-notifier": "^1.0.1"
+    "@types/debug": "4.1.5",
+    "@types/jest": "24.0.19",
+    "@types/lodash": "^4",
+    "@types/mock-fs": "4.10.0",
+    "@types/mz": "0.0.32",
+    "@types/update-notifier": "^2.2",
+    "jest": "24.9.0",
+    "mock-fs": "4.10.2",
+    "stdout-stderr": "0.1.9",
+    "ts-jest": "24.1.0",
+    "tslint": "5.20.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-config-standard": "8.0.1",
+    "typescript": "3.6.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "version": "tsc",
-    "postversion": "git push && git push --tags && npm publish",
+    "lint": "tslint -p .",
+    "validate": "yarn test && yarn lint",
+    "release": "npx np",
     "build": "npx tsc"
   },
   "keywords": [
@@ -35,5 +52,24 @@
     "stats"
   ],
   "author": "David Brownman <beamneocube@gmail.com> (https://davidbrownman.com)",
-  "license": "ISC"
+  "license": "ISC",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  }
 }
