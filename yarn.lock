@@ -1138,7 +1138,7 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-epub@xavdid/epub#26002a5:
+epub@xavdid/epub#26002a55c04999458b9fac94b04fb5cc342d8c94:
   version "1.1.0"
   resolved "https://codeload.github.com/xavdid/epub/tar.gz/26002a55c04999458b9fac94b04fb5cc342d8c94"
   dependencies:

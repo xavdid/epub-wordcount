@@ -1,4 +1,5 @@
 import EPub = require('epub')
+import { TocElement } from 'epub'
 import decode = require('parse-entities')
 import promisifyEvent = require('promisify-event')
 
@@ -7,15 +8,6 @@ import { join as pjoin } from 'path'
 import debugFunc from 'debug'
 
 const debug = debugFunc('wordcount')
-
-// TODO: temporarily copied from the epub defs they should export this properly
-interface TocElement {
-  level: number
-  order: number
-  title: string
-  id: string
-  href?: string
-}
 
 // match all html tags, no matter their contents
 const htmlRegex = /(<([^>]+)>)/gi
