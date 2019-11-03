@@ -15,6 +15,20 @@ import {
 
 import { countWords, countCharacters, getText } from '../src/index'
 
+const JEKYLL_STATS = {
+  // real answer from the site is 25,820
+  // current computed is 25,961
+  numWordsMin: 25500,
+  numWordsMax: 26000,
+
+  // the "real" answer is probably 11, since the last of the 12 is standard-ebook extras
+  numChapters: 12,
+
+  // current computed is 140,086
+  numCharsMin: 139500,
+  numCharsMax: 141000
+}
+
 // helpers
 const countInStr = (input: string, search: string) =>
   (input.match(new RegExp(`\\${search}`, 'g')) || []).length
@@ -148,19 +162,20 @@ describe('file utils', () => {
       expect(epub.metadata.title).toEqual(
         'The Strange Case of Dr. Jekyll and Mr. Hyde'
       )
+      expect(epub.hasDRM()).toBeFalsy()
     })
     test('missing file', async () => {
       await expect(
         parseEpubAtPath(pjoin(__dirname, 'blah.epub'))
       ).rejects.toThrow('Invalid/missing file')
     })
-    test('protected file no throw', async () => {
+    test('drm encumbered file no throw', async () => {
       const epub = await parseEpubAtPath(
         pjoin(__dirname, 'books', 'the-martian.epub')
       )
       expect(epub.hasDRM()).toBeTruthy()
     })
-    test('protected file throw', async () => {
+    test('drm encumbered file throw', async () => {
       await expect(
         parseEpubAtPath(pjoin(__dirname, 'books', 'the-martian.epub'), {
           throwForDrm: true
@@ -183,24 +198,20 @@ describe('book-level operations', () => {
 
   test('getting chapters', async () => {
     const chapters = await getTextFromBook(epub)
-    // chapters.forEach((c, i) => console.log(`${i}: ${c.length}`))
-    expect(chapters.length).toEqual(13) // might change if I get better heuristics about which chapters to parse
+    expect(chapters.length).toEqual(JEKYLL_STATS.numChapters) // might change if I get better heuristics about which chapters to parse
     expect(chapters[0].length).toBeGreaterThan(100)
   })
 
   test('counting words', async () => {
     const wordCount = await countWordsInBook(epub)
-
-    // real answer from the site is 25,820
-    expect(wordCount).toBeGreaterThan(26000)
-    expect(wordCount).toBeLessThan(27000)
+    expect(wordCount).toBeGreaterThan(JEKYLL_STATS.numWordsMin)
+    expect(wordCount).toBeLessThan(JEKYLL_STATS.numWordsMax)
   })
 
   test('counting characters', async () => {
     const characterCount = await countCharactersInBook(epub)
-
-    expect(characterCount).toBeGreaterThan(142400)
-    expect(characterCount).toBeLessThan(142500)
+    expect(characterCount).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
+    expect(characterCount).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })
 })
 
@@ -233,8 +244,9 @@ describe('cli', () => {
     expect(output.includes('*')).toBeFalsy()
     expect(output.includes(',')).toBeFalsy()
     expect(output.includes('Jekyll')).toBeFalsy()
-    expect(output.startsWith('26')).toBeTruthy()
-    expect(Number.isNaN(parseInt(output, 10))).toBeFalsy()
+    const result = parseInt(output, 10)
+    expect(result).toBeGreaterThan(JEKYLL_STATS.numWordsMin)
+    expect(result).toBeLessThan(JEKYLL_STATS.numWordsMax)
   })
 
   test('raw+DRM mode', () => {
@@ -247,14 +259,15 @@ describe('cli', () => {
     expect(output.includes('*')).toBeFalsy()
     expect(output.includes(',')).toBeFalsy()
     expect(output.includes('Jekyll')).toBeFalsy()
-    expect(output.startsWith('1424')).toBeTruthy()
-    expect(Number.isNaN(parseInt(output, 10))).toBeFalsy()
+    const result = parseInt(output, 10)
+    expect(result).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
+    expect(result).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })
 
   test('text mode', () => {
     const output = invokeCli([jekyllHydePath, '-t'])
-    expect(output.length).toBeGreaterThan(142400)
-    expect(output.length).toBeLessThan(142500)
+    expect(output.length).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
+    expect(output.length).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })
 
   test('raw multi should throw', () => {
@@ -270,31 +283,31 @@ describe('cli', () => {
 describe('index', () => {
   test('countWords', async () => {
     const wordCount = await countWords(jekyllHydePath)
-    expect(wordCount).toBeGreaterThan(26000)
-    expect(wordCount).toBeLessThan(27000)
+    expect(wordCount).toBeGreaterThan(JEKYLL_STATS.numWordsMin)
+    expect(wordCount).toBeLessThan(JEKYLL_STATS.numWordsMax)
 
     const bookWordCount = await countWords(
       await parseEpubAtPath(jekyllHydePath)
     )
-    expect(bookWordCount).toBeGreaterThan(26000)
-    expect(bookWordCount).toBeLessThan(27000)
+    expect(bookWordCount).toBeGreaterThan(JEKYLL_STATS.numWordsMin)
+    expect(bookWordCount).toBeLessThan(JEKYLL_STATS.numWordsMax)
   })
   test('countCharacters', async () => {
     const characterCount = await countCharacters(jekyllHydePath)
-    expect(characterCount).toBeGreaterThan(142400)
-    expect(characterCount).toBeLessThan(142500)
+    expect(characterCount).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
+    expect(characterCount).toBeLessThan(JEKYLL_STATS.numCharsMax)
 
     const bookCharacterCount = await countCharacters(
       await parseEpubAtPath(jekyllHydePath)
     )
-    expect(bookCharacterCount).toBeGreaterThan(142400)
-    expect(bookCharacterCount).toBeLessThan(142500)
+    expect(bookCharacterCount).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
+    expect(bookCharacterCount).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })
   test('getText', async () => {
     const chapters = await getText(jekyllHydePath)
-    expect(chapters.length).toEqual(13)
+    expect(chapters.length).toEqual(JEKYLL_STATS.numChapters)
 
     const bookChapters = await getText(await parseEpubAtPath(jekyllHydePath))
-    expect(bookChapters.length).toEqual(13)
+    expect(bookChapters.length).toEqual(JEKYLL_STATS.numChapters)
   })
 })
