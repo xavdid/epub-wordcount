@@ -1152,7 +1152,16 @@ epub-wordcount@2.0.0:
     promisify-event "1.0.0"
     update-notifier "^2.2"
 
-epub@xavdid/epub#26002a5, epub@xavdid/epub#26002a55c04999458b9fac94b04fb5cc342d8c94:
+epub@xavdid/epub#0b19cd2:
+  version "1.1.0"
+  resolved "https://codeload.github.com/xavdid/epub/tar.gz/0b19cd24c6e479e8a2a45dfd5ab39b5bb23bc07d"
+  dependencies:
+    adm-zip "^0.4.11"
+    xml2js "^0.4.19"
+  optionalDependencies:
+    zipfile "^0.5.11"
+
+epub@xavdid/epub#26002a5:
   version "1.1.0"
   resolved "https://codeload.github.com/xavdid/epub/tar.gz/26002a55c04999458b9fac94b04fb5cc342d8c94"
   dependencies:

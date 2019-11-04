@@ -6,7 +6,7 @@
   "dependencies": {
     "commander": "3.0.2",
     "debug": "4.1.1",
-    "epub": "xavdid/epub#26002a55c04999458b9fac94b04fb5cc342d8c94",
+    "epub": "xavdid/epub#0b19cd2",
     "epub-wordcount": "2.0.0",
     "lodash": "^4",
     "mz": "^2.7.0",
