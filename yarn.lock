@@ -349,10 +349,10 @@
   resolved "https://registry.yarnpkg.com/@types/jest-diff/-/jest-diff-20.0.1.tgz#35cc15b9c4f30a18ef21852e255fdb02f6d59b89"
   integrity sha512-yALhelO3i0hqZwhjtcr6dYyaLoCHbAMshwtj6cGxTvHZAKXHsYGdff6E8EPw3xLKY0ELUTQ69Q1rQiJENnccMA==
 
-"@types/jest@24.0.19":
-  version "24.0.19"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.19.tgz#f7036058d2a5844fe922609187c0ad8be430aff5"
-  integrity sha512-YYiqfSjocv7lk5H/T+v5MjATYjaTMsUkbDnjGqSMoO88jWdtJXJV4ST/7DKZcoMHMBvB2SeSfyOzZfkxXHR5xg==
+"@types/jest@24.0.21":
+  version "24.0.21"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.21.tgz#2c0a25440e025bb265f4a17d8b79b11b231426bf"
+  integrity sha512-uyqFvx78Tuy0h5iLCPWRCvi5HhWwEqhIj30doitp191oYLqlCxUyAJHdWVm5+Nr271/vPnkyt6rWeEIjGowBTg==
   dependencies:
     "@types/jest-diff" "*"
 
@@ -1138,7 +1138,21 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-epub@xavdid/epub#26002a55c04999458b9fac94b04fb5cc342d8c94:
+epub-wordcount@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/epub-wordcount/-/epub-wordcount-2.0.0.tgz#927ac6825d6a8b70ca9fc06bfb813f35e8affb0b"
+  integrity sha512-Ynwda/TtvDkdD2cYRpvh71XH2daDqBpJnKPnbUANLJslWjTmgGHNLx8P3CAn/EFzcZWuStXkLhE7tVEatgPs5A==
+  dependencies:
+    commander "3.0.2"
+    debug "4.1.1"
+    epub xavdid/epub#26002a5
+    lodash "^4"
+    mz "^2.7.0"
+    parse-entities "1.2.2"
+    promisify-event "1.0.0"
+    update-notifier "^2.2"
+
+epub@xavdid/epub#26002a5, epub@xavdid/epub#26002a55c04999458b9fac94b04fb5cc342d8c94:
   version "1.1.0"
   resolved "https://codeload.github.com/xavdid/epub/tar.gz/26002a55c04999458b9fac94b04fb5cc342d8c94"
   dependencies:

@@ -2,11 +2,12 @@
   "name": "epub-wordcount",
   "version": "2.0.0",
   "description": "Count the number of words in an ebook",
-  "main": "index.js",
+  "main": "lib/index.js",
   "dependencies": {
     "commander": "3.0.2",
     "debug": "4.1.1",
     "epub": "xavdid/epub#26002a55c04999458b9fac94b04fb5cc342d8c94",
+    "epub-wordcount": "2.0.0",
     "lodash": "^4",
     "mz": "^2.7.0",
     "parse-entities": "1.2.2",
@@ -24,7 +25,7 @@
   "types": "lib/index.d.ts",
   "devDependencies": {
     "@types/debug": "4.1.5",
-    "@types/jest": "24.0.19",
+    "@types/jest": "24.0.21",
     "@types/lodash": "^4",
     "@types/mock-fs": "4.10.0",
     "@types/mz": "0.0.32",
