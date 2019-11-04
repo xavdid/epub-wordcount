@@ -62,7 +62,13 @@ describe('helper', () => {
 describe('should parse chapter', () => {
   test('falsy title', () => {
     expect(
-      shouldParseChapter({ level: 0, order: 1, title: '', id: 'blah-1' })
+      shouldParseChapter({
+        level: 0,
+        order: 1,
+        title: '',
+        id: 'blah-1',
+        href: ''
+      })
     ).toBeTruthy()
   })
   test('present title', () => {
@@ -71,7 +77,8 @@ describe('should parse chapter', () => {
         level: 0,
         order: 1,
         title: 'something',
-        id: 'blah-1'
+        id: 'blah-1',
+        href: ''
       })
     ).toBeTruthy()
   })
