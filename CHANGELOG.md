@@ -1,3 +1,11 @@
+## 2.0.2
+
+* Move `epub` dependency to published version instead of GitHub fork
+
+## 2.0.1
+
+* Fix broken import in `2.0.0`
+
 ## 2.0.0
 
 Basically the entire exposed API was changed with this release. All of the same functionality is still available, but a lot of unnecessary options have been removed. There's a migration guide below.
