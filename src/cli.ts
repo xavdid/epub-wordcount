@@ -31,6 +31,10 @@ cli
   )
   .option('-c, --chars', 'print character count instead of word count')
   .option('-t, --text', 'print entire text of the file instead of word count')
+  .option(
+    '--ignore-drm',
+    'try to parse a book even if it looks like it has DRM. Avoids false positives in detection'
+  )
 
   .parse(process.argv)
 
@@ -65,17 +69,17 @@ const main = async () => {
     paths.map(async path => {
       const book = await parseEpubAtPath(path)
       if (cli.text) {
-        console.log((await getTextFromBook(book)).join(''))
+        console.log((await getTextFromBook(book, cli.ignoreDrm)).join(''))
       } else {
         let message
         let result
-        if (book.hasDRM()) {
+        if (book.hasDRM() && !cli.ignoreDrm) {
           message = `DRM detected`
         } else if (cli.chars) {
-          result = await countCharactersInBook(book)
+          result = await countCharactersInBook(book, cli.ignoreDrm)
           message = `${result.toLocaleString()} characters`
         } else {
-          result = await countWordsInBook(book)
+          result = await countWordsInBook(book, cli.ignoreDrm)
           message = `${result.toLocaleString()} words`
         }
 

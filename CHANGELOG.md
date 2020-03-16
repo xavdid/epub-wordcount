@@ -1,10 +1,14 @@
+## 2.1.0
+
+- Add `--ignore-drm` flag to the CLI and a matching argument for code equivalents. Prevents false positives on detecting DRM.
+
 ## 2.0.2
 
-* Move `epub` dependency to published version instead of GitHub fork
+- Move `epub` dependency to published version instead of GitHub fork
 
 ## 2.0.1
 
-* Fix broken import in `2.0.0`
+- Fix broken import in `2.0.0`
 
 ## 2.0.0
 

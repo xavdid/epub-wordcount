@@ -56,8 +56,11 @@ export const shouldParseChapter = (chapter: TocElement): boolean => {
 /**
  * given a valid parsed book, returns an array of strings. Each array element is the full text of a chapter.
  */
-export const getTextFromBook = async (book: EPub): Promise<string[]> => {
-  if (book.hasDRM()) {
+export const getTextFromBook = async (
+  book: EPub,
+  ignoreDrm: boolean = false
+): Promise<string[]> => {
+  if (book.hasDRM() && !ignoreDrm) {
     return []
   }
 
@@ -101,11 +104,13 @@ export const parseEpubAtPath = async (
   {
     imageWebRoot,
     chapterWebRoot,
-    throwForDrm = false
+    throwForDrm = false,
+    ignoreDrm = false
   }: {
     imageWebRoot?: string
     chapterWebRoot?: string
     throwForDrm?: boolean
+    ignoreDrm?: boolean
   } = {}
 ) => {
   // this could concievably fail for a path that ends in `.epub`. don't do that
@@ -123,7 +128,7 @@ export const parseEpubAtPath = async (
 
   await promisifyEvent(epub, 'end')
 
-  if (epub.hasDRM()) {
+  if (epub.hasDRM() && !ignoreDrm) {
     const message = `Unable to accurately count "${epub.metadata.title}" because it's DRM encumbered`
     if (throwForDrm) {
       throw new Error(message)
@@ -159,19 +164,25 @@ const getWordCountsForChapters = (chapters: string[]): number =>
 const getCharacterCountsForChapters = (chapters: string[]): number =>
   chapters.reduce((total, chapterText) => chapterText.length + total, 0)
 
-export const countWordsInBook = async (book: EPub): Promise<number> => {
-  const chapterTexts = await getTextFromBook(book)
+export const countWordsInBook = async (
+  book: EPub,
+  ignoreDrm: boolean
+): Promise<number> => {
+  const chapterTexts = await getTextFromBook(book, ignoreDrm)
   return getWordCountsForChapters(chapterTexts)
 }
 
-export const countCharactersInBook = async (book: EPub): Promise<number> => {
-  const chapterTexts = await getTextFromBook(book)
+export const countCharactersInBook = async (
+  book: EPub,
+  ignoreDrm: boolean
+): Promise<number> => {
+  const chapterTexts = await getTextFromBook(book, ignoreDrm)
   return getCharacterCountsForChapters(chapterTexts)
 }
 
 // this mostly combines the above
-export const getBookDetails = async (book: EPub) => {
-  const chapterTexts = await getTextFromBook(book)
+export const getBookDetails = async (book: EPub, ignoreDrm: boolean) => {
+  const chapterTexts = await getTextFromBook(book, ignoreDrm)
   return {
     text: chapterTexts.join('\n'),
     characterCount: getCharacterCountsForChapters(chapterTexts),

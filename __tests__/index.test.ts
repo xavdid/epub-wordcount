@@ -210,13 +210,13 @@ describe('book-level operations', () => {
   })
 
   test('counting words', async () => {
-    const wordCount = await countWordsInBook(epub)
+    const wordCount = await countWordsInBook(epub, false)
     expect(wordCount).toBeGreaterThan(JEKYLL_STATS.numWordsMin)
     expect(wordCount).toBeLessThan(JEKYLL_STATS.numWordsMax)
   })
 
   test('counting characters', async () => {
-    const characterCount = await countCharactersInBook(epub)
+    const characterCount = await countCharactersInBook(epub, false)
     expect(characterCount).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
     expect(characterCount).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })

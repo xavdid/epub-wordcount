@@ -50,18 +50,19 @@ See `word-count -h` for more info
 - `-c, --chars` - Print the character count instead of the world count
 - `-r, --raw` - Instead of printing the nice title, just print out a numeral
 - `-t, --text` - Print out the whole text of the book. Great for passing into other unix functions, like `wc`.
+- `--ignore-drm` - If the function is saying your file has DRM when you know it doesn't, you can pass this flag to force the CLI to ignore the DRM warning. Might cause weird results if the actually _does_ have DRM.
 
 ## Code API
 
 There are a number of functions exported from this package. Each one takes either a path to a file or an already-parsed file. Mostly you'll use the path, but if the epub you're parsing is in a non-standard format, then you might use that function to ensure the file parses correctly. See [here](https://github.com/julien-c/epub#usage) for the options available.
 
-- `countWords(pathOrEpub) => Promise<number>`
-- `countCharacters(pathOrEpub) => Promise<number>`
-- `getText(pathOrEpub) => Promise<string[]>`
+- `countWords(pathOrEpub, ignoreDrm?) => Promise<number>`
+- `countCharacters(pathOrEpub, ignoreDrm?) => Promise<number>`
+- `getText(pathOrEpub, ignoreDrm?) => Promise<string[]>`
 
 Each of the above can be passed the result of the following:
 
-- `parseEpubAtPath(path) => Promise<EPub>`
+- `parseEpubAtPath(path, ignoreDrm?) => Promise<EPub>`
 
 ## Limitations
 
