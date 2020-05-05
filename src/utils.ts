@@ -1,11 +1,12 @@
 import EPub = require('epub')
 import { TocElement } from 'epub'
 import decode = require('parse-entities')
-import promisifyEvent = require('promisify-event')
 
 import { stat, readdir } from 'mz/fs'
 import { join as pjoin } from 'path'
 import debugFunc from 'debug'
+
+import pEvent from 'p-event'
 
 const debug = debugFunc('wordcount')
 
@@ -121,12 +122,11 @@ export const parseEpubAtPath = async (
   const epub = new EPub(path, imageWebRoot, chapterWebRoot)
   try {
     epub.parse()
+    await pEvent(epub, 'end')
   } catch (e) {
     const message = `${e.message} :: (path: "${path}")\n`
     throw new Error(message)
   }
-
-  await promisifyEvent(epub, 'end')
 
   if (epub.hasDRM() && !ignoreDrm) {
     const message = `Unable to accurately count "${epub.metadata.title}" because it's DRM encumbered`

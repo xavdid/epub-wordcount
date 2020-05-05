@@ -148,18 +148,14 @@ describe('file utils', () => {
 
     test('recursive functionality', async () => {
       // deeply nested, only a few epubs
-      expect(
-        (await getEpubPaths('/Users/david/Dropbox/Ebooks/Textbooks')).sort()
-      ).toEqual(
-        [
-          '/Users/david/Dropbox/Ebooks/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
-          '/Users/david/Dropbox/Ebooks/Textbooks/Writing an Interpreter in Go (1.5)/writing_an_interpreter_in_go_1.5.epub',
-          '/Users/david/Dropbox/Ebooks/Textbooks/java-the-legend.epub',
-          '/Users/david/Dropbox/Ebooks/Textbooks/object-oriented-vs-functional-programming.epub',
-          '/Users/david/Dropbox/Ebooks/Textbooks/swift-pocket-reference.epub',
-          '/Users/david/Dropbox/Ebooks/Textbooks/why-rust.epub'
-        ].sort()
-      )
+      const paths = await getEpubPaths('/Users/david/Dropbox/Ebooks/Textbooks')
+      ;[
+        '/Users/david/Dropbox/Ebooks/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
+        '/Users/david/Dropbox/Ebooks/Textbooks/Writing an Interpreter in Go (1.5)/writing_an_interpreter_in_go_1.5.epub',
+        '/Users/david/Dropbox/Ebooks/Textbooks/java-the-legend.epub'
+      ].forEach(path => {
+        expect(paths.includes(path)).toEqual(true)
+      })
     })
   })
 

@@ -39,7 +39,8 @@ cli
   .parse(process.argv)
 
 const main = async () => {
-  if (!cli.args.length) {
+  debug('starting')
+  if (cli.rawArgs.length < 3) {
     console.log(cli.help())
     return
   }
@@ -65,15 +66,18 @@ const main = async () => {
     )
   }
 
-  await Promise.all(
+  return Promise.all(
     paths.map(async path => {
       const book = await parseEpubAtPath(path)
       if (cli.text) {
+        console.log('text')
         console.log((await getTextFromBook(book, cli.ignoreDrm)).join(''))
       } else {
+        console.log('no text')
         let message
         let result
         if (book.hasDRM() && !cli.ignoreDrm) {
+          console.log('drm?')
           message = `DRM detected`
         } else if (cli.chars) {
           result = await countCharactersInBook(book, cli.ignoreDrm)
