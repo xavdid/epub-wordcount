@@ -6,7 +6,7 @@
   "dependencies": {
     "commander": "5.1.0",
     "debug": "4.1.1",
-    "epub": "1.2.0",
+    "epub": "1.2.1",
     "lodash": "^4",
     "mz": "^2.7.0",
     "p-event": "4.1.0",
@@ -36,7 +36,7 @@
     "tslint": "5.20.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-config-standard": "8.0.1",
-    "typescript": "3.6.4"
+    "typescript": "^3.8"
   },
   "scripts": {
     "test": "jest",
@@ -44,7 +44,7 @@
     "lint": "tslint -p .",
     "validate": "yarn test && yarn lint",
     "release": "npx np",
-    "build": "npx tsc",
+    "build": "tsc",
     "watch": "tsc --watch"
   },
   "keywords": [

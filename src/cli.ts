@@ -54,6 +54,10 @@ const main = async () => {
     )
   )
 
+  if (!paths.length) {
+    throw new Error('no valid epubs found in input')
+  }
+
   if (paths.length > 1 && cli.raw) {
     throw new Error(
       'unable to parse a directory in raw mode. either pick a single file or remove the "-r" flag'
@@ -68,16 +72,25 @@ const main = async () => {
 
   return Promise.all(
     paths.map(async path => {
-      const book = await parseEpubAtPath(path)
+      let book
+      try {
+        book = await parseEpubAtPath(path)
+      } catch (e) {
+        if (paths.length > 1) {
+          debug(e.message)
+          console.error(
+            `skipping "${path}" because there was an error while parsing. Re-run command with "DEBUG=wordcount" to see more info, or parse the file by itself`
+          )
+          return
+        }
+        throw e
+      }
       if (cli.text) {
-        console.log('text')
         console.log((await getTextFromBook(book, cli.ignoreDrm)).join(''))
       } else {
-        console.log('no text')
         let message
         let result
         if (book.hasDRM() && !cli.ignoreDrm) {
-          console.log('drm?')
           message = `DRM detected`
         } else if (cli.chars) {
           result = await countCharactersInBook(book, cli.ignoreDrm)
@@ -108,7 +121,12 @@ const main = async () => {
 main().catch(e => {
   debug(e)
   console.error(
-    `ERR: ${e.message}. Re-run command with "DEBUG=wordcount" to see more info`
+    `ERR: ${e.message}.${
+      (process.env.DEBUG || '').includes('wordcount') ||
+      process.env.DEBUG === '*'
+        ? ''
+        : ' Consider re-running command with "DEBUG=wordcount" to see more info'
+    }`
   )
   process.exitCode = 1
 })

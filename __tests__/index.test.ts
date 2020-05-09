@@ -1,5 +1,6 @@
 import { join as pjoin } from 'path'
 import { spawnSync } from 'child_process'
+import { escapeRegExp } from 'lodash'
 
 import EPub = require('epub')
 import {
@@ -31,7 +32,7 @@ const JEKYLL_STATS = {
 
 // helpers
 const countInStr = (input: string, search: string) =>
-  (input.match(new RegExp(`\\${search}`, 'g')) || []).length
+  (input.match(new RegExp(escapeRegExp(search), 'gmi')) || []).length
 
 const runCommandSync = (cmd: string, args?: string[]) => {
   const { stdout, stderr, status } = spawnSync(cmd, args, {
@@ -40,12 +41,13 @@ const runCommandSync = (cmd: string, args?: string[]) => {
   if (status) {
     throw new Error(stderr || stdout)
   }
-  return stdout
+  return { stdout, stderr }
 }
 const cliPath = pjoin(__dirname, '../lib/cli.js')
 const booksPath = pjoin(__dirname, 'books')
 const jekyllHydePath = pjoin(booksPath, 'jekyll-hyde.epub')
 const martianPath = pjoin(booksPath, 'the-martian.epub')
+const srcPath = pjoin(__dirname, '..', 'src') // has no books in it!
 
 const invokeCli = (args: string[]) => runCommandSync('node', [cliPath, ...args])
 
@@ -146,6 +148,10 @@ describe('file utils', () => {
       ])
     })
 
+    test('no valid', async () => {
+      expect(await getEpubPaths(srcPath)).toEqual([])
+    })
+
     test('recursive functionality', async () => {
       // deeply nested, only a few epubs
       const paths = await getEpubPaths('/Users/david/Dropbox/Ebooks/Textbooks')
@@ -190,6 +196,13 @@ describe('file utils', () => {
         parseEpubAtPath(pjoin(__dirname, 'some-file.txt'))
       ).rejects.toThrow('non-epub')
     })
+    test('broken epub file', async () => {
+      await expect(
+        parseEpubAtPath(pjoin(__dirname, 'books', 'alice_broken.epub'))
+      ).rejects.toThrow(
+        'Parsing container XML failed in TOC: Invalid character in entity name'
+      )
+    })
   })
 })
 
@@ -221,56 +234,63 @@ describe('book-level operations', () => {
 describe('cli', () => {
   describe('basic operation', () => {
     test('single file input', () => {
-      const output = invokeCli([jekyllHydePath])
-      expect(countInStr(output, ',')).toEqual(1)
-      expect(countInStr(output, '*')).toEqual(1)
-      expect(output.includes('Jekyll')).toBeTruthy()
+      const { stdout, stderr } = invokeCli([jekyllHydePath])
+      expect(countInStr(stdout, ',')).toEqual(1)
+      expect(countInStr(stdout, '*')).toEqual(1)
+      expect(stderr).toEqual('')
+      expect(stdout.includes('Jekyll')).toBeTruthy()
     })
     test('multi file input', () => {
-      const output = invokeCli([jekyllHydePath, martianPath])
-      expect(countInStr(output, ',')).toEqual(1)
-      expect(countInStr(output, '*')).toEqual(2)
-      expect(output.includes('Jekyll')).toBeTruthy()
+      const { stdout, stderr } = invokeCli([jekyllHydePath, martianPath])
+      expect(countInStr(stdout, ',')).toEqual(1)
+      expect(countInStr(stdout, '*')).toEqual(2)
+      expect(countInStr(stdout, 'skipping')).toEqual(0)
+      expect(stderr).toEqual('')
+      expect(stdout.includes('Jekyll')).toBeTruthy()
     })
     test('directory input', () => {
-      const output = invokeCli([booksPath])
-      expect(countInStr(output, ',')).toEqual(1)
-      expect(countInStr(output, '*')).toEqual(2)
-      expect(countInStr(output, 'Jekyll')).toEqual(1)
-      expect(countInStr(output, 'Martian')).toEqual(1)
-      expect(countInStr(output, 'DRM')).toEqual(1)
+      const { stdout, stderr } = invokeCli([booksPath])
+      expect(countInStr(stdout, ',')).toEqual(1)
+      expect(countInStr(stdout, '*')).toEqual(2)
+      expect(countInStr(stdout, 'skipping')).toEqual(0)
+
+      expect(countInStr(stdout, 'Jekyll')).toEqual(1)
+      expect(countInStr(stdout, 'Martian')).toEqual(1)
+      expect(countInStr(stdout, 'DRM')).toEqual(1)
+
+      expect(countInStr(stderr, 'skipping')).toEqual(1)
     })
   })
 
   test('raw mode', () => {
-    const output = invokeCli([jekyllHydePath, '-r'])
-    expect(output.includes('*')).toBeFalsy()
-    expect(output.includes(',')).toBeFalsy()
-    expect(output.includes('Jekyll')).toBeFalsy()
-    const result = parseInt(output, 10)
+    const { stdout } = invokeCli([jekyllHydePath, '-r'])
+    expect(stdout.includes('*')).toBeFalsy()
+    expect(stdout.includes(',')).toBeFalsy()
+    expect(stdout.includes('Jekyll')).toBeFalsy()
+    const result = parseInt(stdout, 10)
     expect(result).toBeGreaterThan(JEKYLL_STATS.numWordsMin)
     expect(result).toBeLessThan(JEKYLL_STATS.numWordsMax)
   })
 
   test('raw+DRM mode', () => {
-    const output = invokeCli([martianPath, '-r'])
-    expect(output).toEqual('')
+    const { stdout } = invokeCli([martianPath, '-r'])
+    expect(stdout).toEqual('')
   })
 
   test('raw character mode', () => {
-    const output = invokeCli([jekyllHydePath, '-rc'])
-    expect(output.includes('*')).toBeFalsy()
-    expect(output.includes(',')).toBeFalsy()
-    expect(output.includes('Jekyll')).toBeFalsy()
-    const result = parseInt(output, 10)
+    const { stdout } = invokeCli([jekyllHydePath, '-rc'])
+    expect(stdout.includes('*')).toBeFalsy()
+    expect(stdout.includes(',')).toBeFalsy()
+    expect(stdout.includes('Jekyll')).toBeFalsy()
+    const result = parseInt(stdout, 10)
     expect(result).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
     expect(result).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })
 
   test('text mode', () => {
-    const output = invokeCli([jekyllHydePath, '-t'])
-    expect(output.length).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
-    expect(output.length).toBeLessThan(JEKYLL_STATS.numCharsMax)
+    const { stdout } = invokeCli([jekyllHydePath, '-t'])
+    expect(stdout.length).toBeGreaterThan(JEKYLL_STATS.numCharsMin)
+    expect(stdout.length).toBeLessThan(JEKYLL_STATS.numCharsMax)
   })
 
   test('raw multi should throw', () => {
@@ -280,6 +300,10 @@ describe('cli', () => {
   })
   test('chars and text should throw', () => {
     expect(() => invokeCli([jekyllHydePath, '-ct'])).toThrow('only specify one')
+  })
+
+  test('no good input should throw', () => {
+    expect(() => invokeCli([srcPath])).toThrow('no valid epubs')
   })
 })
 

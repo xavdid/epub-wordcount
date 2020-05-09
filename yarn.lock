@@ -1293,13 +1293,13 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
-epub@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/epub/-/epub-1.2.0.tgz#01df198f3e887b1f5d829609e0a3493c40f4ba83"
-  integrity sha512-d7PZaDW1FAZodOHkqroKRT2HAQi1thP7m/Uq68Faub83unnegbW2V/hzWdAAlIV8f8yVjjSnzq+jqF0g/RS0zA==
+epub@1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/epub/-/epub-1.2.1.tgz#0bb22322a50c15f2756abe24b3e26e2f4522081c"
+  integrity sha512-2GDDr2qcH3dvwX1lgwCQ3gki0CwwrxELLI005SauhT2TacJUiDqZrQuGuOSWEYIHX6ox5kXHpn1ZjsHqkNCb+g==
   dependencies:
     adm-zip "^0.4.11"
-    xml2js "^0.4.19"
+    xml2js "^0.4.23"
   optionalDependencies:
     zipfile "^0.5.11"
 
@@ -4138,10 +4138,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@3.6.4:
-  version "3.6.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.6.4.tgz#b18752bb3792bc1a0281335f7f6ebf1bbfc5b91d"
-  integrity sha512-unoCll1+l+YK4i4F8f22TaNVPRHcD9PA3yCuZ8g5e0qGqlVlJ/8FSateOLLSagn+Yg5+ZwuPkL8LFUc0Jcvksg==
+typescript@^3.8:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
+  integrity sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==
 
 union-value@^1.0.0:
   version "1.0.1"
@@ -4378,7 +4378,7 @@ xml-name-validator@^3.0.0:
   resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
   integrity sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==
 
-xml2js@^0.4.19:
+xml2js@^0.4.23:
   version "0.4.23"
   resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.4.23.tgz#a0c69516752421eb2ac758ee4d4ccf58843eac66"
   integrity sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==
