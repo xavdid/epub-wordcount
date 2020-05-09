@@ -1,3 +1,7 @@
+## 2.1.1
+
+- Throw parser errors more reliably. Skip malformed books when parsing a set, but print a warning message.
+
 ## 2.1.0
 
 - Add `--ignore-drm` flag to the CLI and a matching argument for code equivalents. Prevents false positives on detecting DRM.
