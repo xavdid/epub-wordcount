@@ -19,7 +19,7 @@ const _cleanText = (text: string) => {
   let result = decode(text)
 
   result = result
-    .replace(htmlRegex, ' ') // these are replaced by spaces so that newlines in the text are properly tokenizedz
+    .replace(htmlRegex, ' ') // these are replaced by spaces so that newlines in the text are properly tokenized
     .replace(/“ /g, '“')
     .replace(/ ”/g, '”')
     .replace(/"/g, '') // non-smart quotes complicate spaces and counting words, but don't really matter
@@ -74,6 +74,7 @@ export const getTextFromBook = async (
             debug(`failed to parse chapter id: ${id} because of error: ${err}`)
             // eat the error
             resolve('')
+            return
           }
 
           resolve(cleanText(text))
