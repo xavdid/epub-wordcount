@@ -38,6 +38,7 @@
     "tslint-config-standard": "8.0.1",
     "typescript": "^3.8"
   },
+  "repository": "github:xavdid/epub-wordcount/",
   "scripts": {
     "test": "jest",
     "version": "tsc",
@@ -52,7 +53,7 @@
     "ebook",
     "stats"
   ],
-  "author": "David Brownman <beamneocube@gmail.com> (https://davidbrownman.com)",
+  "author": "David Brownman <beamneocube@gmail.com> (https://xavd.id)",
   "license": "ISC",
   "jest": {
     "testEnvironment": "node",
