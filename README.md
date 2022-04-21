@@ -2,6 +2,14 @@
 
 Given an epub file, do our best to count the number of words in it.
 
+## Installation
+
+This package is available on [npm](https://www.npmjs.com/package/epub-wordcount) as `epub-wordcount`. It can be installed using common JS tools:
+
+```sh
+npm i -g epub-wordcount
+```
+
 ## Basic Usage
 
 On the CLI:
@@ -23,7 +31,7 @@ import { countWords } from 'epub-wordcount'
 // JS:
 // const { countWords } = require('epub-wordcount')
 
-countWords('./books/some-book.epub').then(numWords => {
+countWords('./books/some-book.epub').then((numWords) => {
   console.log(`There are ${numWords} words`)
 })
 // There are 106190 words

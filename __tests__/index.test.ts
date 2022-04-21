@@ -11,7 +11,7 @@ import {
   getTextFromBook,
   countCharactersInBook,
   countWordsInBook,
-  shouldParseChapter
+  shouldParseChapter,
 } from '../src/utils'
 
 import { countWords, countCharacters, getText } from '../src/index'
@@ -27,7 +27,7 @@ const JEKYLL_STATS = {
 
   // current computed is 140,086
   numCharsMin: 139500,
-  numCharsMax: 141000
+  numCharsMax: 141000,
 }
 
 // helpers
@@ -36,7 +36,7 @@ const countInStr = (input: string, search: string) =>
 
 const runCommandSync = (cmd: string, args?: string[]) => {
   const { stdout, stderr, status } = spawnSync(cmd, args, {
-    encoding: 'utf8'
+    encoding: 'utf8',
   })
   if (status) {
     throw new Error(stderr || stdout)
@@ -69,7 +69,7 @@ describe('should parse chapter', () => {
         order: 1,
         title: '',
         id: 'blah-1',
-        href: ''
+        href: '',
       })
     ).toBeTruthy()
   })
@@ -80,7 +80,7 @@ describe('should parse chapter', () => {
         order: 1,
         title: 'something',
         id: 'blah-1',
-        href: ''
+        href: '',
       })
     ).toBeTruthy()
   })
@@ -144,7 +144,7 @@ describe('file utils', () => {
           '/Users/david/Dropbox/Ebooks/Fiction/Machine_of_Death-_A_Collection_of_Stories_About_People_Who_Know_How_They_Will_Die_(ePub)'
         )
       ).toEqual([
-        '/Users/david/Dropbox/Ebooks/Fiction/Machine_of_Death-_A_Collection_of_Stories_About_People_Who_Know_How_They_Will_Die_(ePub)/machine_of_death.epub'
+        '/Users/david/Dropbox/Ebooks/Fiction/Machine_of_Death-_A_Collection_of_Stories_About_People_Who_Know_How_They_Will_Die_(ePub)/machine_of_death.epub',
       ])
     })
 
@@ -157,9 +157,9 @@ describe('file utils', () => {
       const paths = await getEpubPaths('/Users/david/Dropbox/Ebooks/Textbooks')
       ;[
         '/Users/david/Dropbox/Ebooks/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
-        '/Users/david/Dropbox/Ebooks/Textbooks/Writing an Interpreter in Go (1.5)/writing_an_interpreter_in_go_1.5.epub',
-        '/Users/david/Dropbox/Ebooks/Textbooks/java-the-legend.epub'
-      ].forEach(path => {
+        '/Users/david/Dropbox/Ebooks/Textbooks/writing_an_interpreter_in_go_1.7/writing_an_interpreter_in_go_1.7.epub',
+        '/Users/david/Dropbox/Ebooks/Textbooks/java-the-legend.epub',
+      ].forEach((path) => {
         expect(paths.includes(path)).toEqual(true)
       })
     })
@@ -187,7 +187,7 @@ describe('file utils', () => {
     test('drm encumbered file throw', async () => {
       await expect(
         parseEpubAtPath(pjoin(__dirname, 'books', 'the-martian.epub'), {
-          throwForDrm: true
+          throwForDrm: true,
         })
       ).rejects.toThrow('DRM')
     })
