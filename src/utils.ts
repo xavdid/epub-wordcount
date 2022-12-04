@@ -1,12 +1,10 @@
 import EPub = require('epub')
-import { TocElement } from 'epub'
-import decode = require('parse-entities')
-
-import { stat, readdir } from 'mz/fs'
-import { join as pjoin } from 'path'
 import debugFunc from 'debug'
-
+import { TocElement } from 'epub'
+import { readdir, stat } from 'mz/fs'
 import pEvent from 'p-event'
+import { join as pjoin } from 'path'
+import decode = require('parse-entities')
 
 const debug = debugFunc('wordcount')
 
@@ -26,7 +24,7 @@ const _cleanText = (text: string) => {
     .replace(/\s+/g, ' ')
     .trim()
 
-  floatingChars.forEach(c => {
+  floatingChars.forEach((c) => {
     result = result.replace(new RegExp(` \\${c}`, 'g'), c)
   })
 
@@ -44,12 +42,13 @@ export const cleanText = (text: string): string => {
  * given a space-separated string, counts the number of words.
  */
 export const countWordsInString = (text: string) => {
-  return text.split(/\s+/gm).filter(x => Boolean(x.trim())).length
+  return text.split(/\s+/gm).filter((x) => Boolean(x.trim())).length
 }
 
 // TODO: be smarter about this
 // id also has info?
-const ignoredTitlesRegex = /acknowledgment|copyright|cover|dedication|title|author|contents/i
+const ignoredTitlesRegex =
+  /acknowledgment|copyright|cover|dedication|title|author|contents/i
 export const shouldParseChapter = (chapter: TocElement): boolean => {
   return !Boolean(chapter.title) || !chapter.title.match(ignoredTitlesRegex)
 }
@@ -66,7 +65,7 @@ export const getTextFromBook = async (
   }
 
   const getTextForChapter = async (id: string): Promise<string> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // using getChapter instead of getChapterRaw. the former of which pulls out style automatically
       try {
         book.getChapter(id, (err: Error, text: string) => {
@@ -88,14 +87,16 @@ export const getTextFromBook = async (
     })
   }
 
-  return (await Promise.all(
-    book.flow.map(async chapter => {
-      if (!shouldParseChapter(chapter)) {
-        return ''
-      }
-      return getTextForChapter(chapter.id)
-    })
-  )).filter(Boolean)
+  return (
+    await Promise.all(
+      book.flow.map(async (chapter) => {
+        if (!shouldParseChapter(chapter)) {
+          return ''
+        }
+        return getTextForChapter(chapter.id)
+      })
+    )
+  ).filter(Boolean)
 }
 
 /**
@@ -107,7 +108,7 @@ export const parseEpubAtPath = async (
     imageWebRoot,
     chapterWebRoot,
     throwForDrm = false,
-    ignoreDrm = false
+    ignoreDrm = false,
   }: {
     imageWebRoot?: string
     chapterWebRoot?: string
@@ -143,10 +144,22 @@ export const parseEpubAtPath = async (
 export const getEpubPaths = async (fpath: string): Promise<string[]> => {
   const statRes = await stat(fpath)
   if (statRes.isDirectory()) {
+    if (fpath.endsWith('.epub')) {
+      console.warn(
+        [
+          'Fake ePub detected!',
+          `\t${fpath} looks like an ePub, but is actually a directory.`,
+          '\tTo fix it, see here: https://github.com/xavdid/epub-wordcount/#fake-epubs',
+          '',
+        ].join('\n')
+      )
+      return []
+    }
+
     const files = await readdir(fpath)
 
     const recursedPaths = await Promise.all(
-      files.map(f => getEpubPaths(pjoin(fpath, f)))
+      files.map((f) => getEpubPaths(pjoin(fpath, f)))
     )
     return recursedPaths.reduce((res, path) => res.concat(path), [])
   } else if (fpath.endsWith('epub')) {
@@ -187,6 +200,6 @@ export const getBookDetails = async (book: EPub, ignoreDrm: boolean) => {
   return {
     text: chapterTexts.join('\n'),
     characterCount: getCharacterCountsForChapters(chapterTexts),
-    wordCount: getWordCountsForChapters(chapterTexts)
+    wordCount: getWordCountsForChapters(chapterTexts),
   }
 }

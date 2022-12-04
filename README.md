@@ -84,3 +84,14 @@ Unit tests are run on the following e-books:
 
 - Stevenson's _THE STRANGE CASE OF DR. JEKYLL AND MR. HYDE_, from the public domain, provided by [Standard Ebooks](https://standardebooks.org/ebooks/robert-louis-stevenson/the-strange-case-of-dr-jekyll-and-mr-hyde)
 - A copy of _The Martian_, by Andy Weir. This is my copy, purchased from Apple Books. It's DRM encumbered, so releasing it publicly should not be seen as copyright infringement.
+
+## Fake ePubs
+
+In modern versions of macOS, dragging a book out of the `Books` app won't give you an actual epub- it'll give you a folder with the `.epub` extension. Unsurprisingly, this doesn't play well with ePub tooling.
+
+To fix, run the following command (pulled [from here](https://apple.stackexchange.com/questions/239050/how-to-convert-an-epub-package-to-regular-epub/429474)) fixes them for me:
+
+```sh
+# from inside the rogue directory
+zip -X -r ../fixed.epub mimetype *
+```
