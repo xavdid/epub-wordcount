@@ -55,7 +55,7 @@ See `word-count -h` for more info
 
 ### Options
 
-- `-c, --chars` - Print the character count instead of the world count
+- `-c, --chars` - Print the alphanumeric character count instead of the world count
 - `-r, --raw` - Instead of printing the nice title, just print out a numeral
 - `-t, --text` - Print out the whole text of the book. Great for passing into other unix functions, like `wc`.
 - `--ignore-drm` - If the function is saying your file has DRM when you know it doesn't, you can pass this flag to force the CLI to ignore the DRM warning. Might cause weird results if the actually _does_ have DRM.

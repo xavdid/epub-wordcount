@@ -10,7 +10,8 @@ const debug = debugFunc('wordcount')
 
 // match all html tags, no matter their contents
 const htmlRegex = /(<([^>]+)>)/gi
-const floatingChars = ['.', '?', '!', ':', ';', ',']
+// there might be space between these characters and a preceeding word, so remove that space. e.g. `cool .` should be counted as `cool.`, a single word.
+const floatingChars = ['.', '?', '!', ':', ';', ',', '-', '—']
 
 const _cleanText = (text: string) => {
   // a sentence that ends with a tag followed by a period was leaving an extra space

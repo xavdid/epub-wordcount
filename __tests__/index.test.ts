@@ -18,14 +18,14 @@ import { countWords, countCharacters, getText } from '../src/index'
 
 const JEKYLL_STATS = {
   // real answer from the site is 25,820
-  // current computed is 25,961
+  // current computed is 25,890
   numWordsMin: 25500,
   numWordsMax: 26000,
 
   // the "real" answer is probably 11, since the last of the 12 is standard-ebook extras
   numChapters: 12,
 
-  // current computed is 140,086
+  // current computed is 140,015
   numCharsMin: 139500,
   numCharsMax: 141000,
 }
@@ -131,6 +131,12 @@ describe('counting data', () => {
         'drew out and set before him an envelope addressed by the hand and sealed with the seal of his dead friend. “Private: for the hands of G. J. Utterson alone, and in case of his predecease to be destroyed unread,” so it was emphatically superscribed; and the lawyer dreaded to behold the contents.'
       )
     })
+    test('clamp floating dashes', () => {
+      expect(cleanText('this - is — cool')).toEqual('this- is— cool')
+    })
+    test('floating punctuation is removed', () => {
+      expect(cleanText('this . is cool')).toEqual('this. is cool')
+    })
   })
 })
 
@@ -155,10 +161,13 @@ describe('file utils', () => {
     test('recursive functionality', async () => {
       // deeply nested, only a few epubs
       const paths = await getEpubPaths('/Users/david/Dropbox/Ebooks/Textbooks')
+      // fragile test: depends on my local filesystem
       ;[
-        '/Users/david/Dropbox/Ebooks/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
-        '/Users/david/Dropbox/Ebooks/Textbooks/writing_an_interpreter_in_go_1.7/writing_an_interpreter_in_go_1.7.epub',
-        '/Users/david/Dropbox/Ebooks/Textbooks/java-the-legend.epub',
+        process.env.HOME +
+          '/Dropbox/Ebooks/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
+        process.env.HOME +
+          '/Dropbox/Ebooks/Textbooks/writing_an_interpreter_in_go_1.7/writing_an_interpreter_in_go_1.7.epub',
+        process.env.HOME + '/Dropbox/Ebooks/Textbooks/java-the-legend.epub',
       ].forEach((path) => {
         expect(paths.includes(path)).toEqual(true)
       })
