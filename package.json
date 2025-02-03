@@ -1,6 +1,6 @@
 {
   "name": "epub-wordcount",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Count the number of words in an ebook",
   "main": "lib/index.js",
   "dependencies": {
