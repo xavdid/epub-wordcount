@@ -18,8 +18,8 @@
   },
   "files": [
     "lib/*.js",
-    "index.d.ts",
-    "utils.d.ts"
+    "lib/index.d.ts",
+    "lib/utils.d.ts"
   ],
   "types": "lib/index.d.ts",
   "devDependencies": {
@@ -72,6 +72,7 @@
   },
   "prettier": {
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }
