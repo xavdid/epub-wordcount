@@ -1,3 +1,9 @@
+## 2.1.3
+
+_released `2025-02-02`_
+
+- fix: no longer counts dashes and em-dashes as words
+
 ## 2.1.2
 
 _released `2022-12-03`_
