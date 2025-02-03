@@ -38,7 +38,7 @@
     "tslint-config-standard": "8.0.1",
     "typescript": "^3.8"
   },
-  "repository": "github:xavdid/epub-wordcount/",
+  "repository": "github:xavdid/epub-wordcount",
   "scripts": {
     "test": "jest",
     "version": "tsc",
