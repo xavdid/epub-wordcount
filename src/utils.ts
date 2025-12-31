@@ -118,7 +118,7 @@ export const parseEpubAtPath = async (
   } = {}
 ) => {
   // this could concievably fail for a path that ends in `.epub`. don't do that
-  if (!path.endsWith('.epub')) {
+  if (!path.toLowerCase().endsWith('.epub')) {
     throw new Error('unable to parse non-epub file')
   }
 
@@ -145,7 +145,7 @@ export const parseEpubAtPath = async (
 export const getEpubPaths = async (fpath: string): Promise<string[]> => {
   const statRes = await stat(fpath)
   if (statRes.isDirectory()) {
-    if (fpath.endsWith('.epub')) {
+    if (fpath.toLowerCase().endsWith('.epub')) {
       console.warn(
         [
           'Fake ePub detected!',
@@ -163,7 +163,7 @@ export const getEpubPaths = async (fpath: string): Promise<string[]> => {
       files.map((f) => getEpubPaths(pjoin(fpath, f)))
     )
     return recursedPaths.reduce((res, path) => res.concat(path), [])
-  } else if (fpath.endsWith('epub')) {
+  } else if (fpath.toLowerCase().endsWith('epub')) {
     return [fpath]
   }
 
