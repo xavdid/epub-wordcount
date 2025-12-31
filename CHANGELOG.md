@@ -1,3 +1,9 @@
+## 2.1.4
+
+_released `2025-12-30`_
+
+- fix: accepts epub files regardless of case (e.g. `.EpUb` is now supported) (https://github.com/xavdid/epub-wordcount/pull/31)
+
 ## 2.1.3
 
 _released `2025-02-02`_
