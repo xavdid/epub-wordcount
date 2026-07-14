@@ -1,10 +1,8 @@
-import EPub = require('epub')
 import debugFunc from 'debug'
-import { TocElement } from 'epub'
-import { readdir, stat } from 'mz/fs'
-import pEvent from 'p-event'
+import EPub, { ManifestItem } from 'epub'
+import { readdir, stat } from 'fs/promises'
+import { parseEntities as decode } from 'parse-entities'
 import { join as pjoin } from 'path'
-import decode = require('parse-entities')
 
 const debug = debugFunc('wordcount')
 
@@ -50,8 +48,10 @@ export const countWordsInString = (text: string) => {
 // id also has info?
 const ignoredTitlesRegex =
   /acknowledgment|copyright|cover|dedication|title|author|contents/i
-export const shouldParseChapter = (chapter: TocElement): boolean => {
-  return !Boolean(chapter.title) || !chapter.title.match(ignoredTitlesRegex)
+export const shouldParseChapter = (chapter: ManifestItem): boolean => {
+  console.log(chapter)
+  // @ts-ignore
+  return !chapter.title || !chapter.title.match(ignoredTitlesRegex)
 }
 
 /**
@@ -66,26 +66,15 @@ export const getTextFromBook = async (
   }
 
   const getTextForChapter = async (id: string): Promise<string> => {
-    return new Promise((resolve) => {
+    try {
       // using getChapter instead of getChapterRaw. the former of which pulls out style automatically
-      try {
-        book.getChapter(id, (err: Error, text: string) => {
-          if (err) {
-            debug(`failed to parse chapter id: ${id} because of error: ${err}`)
-            // eat the error
-            resolve('')
-            return
-          }
-
-          resolve(cleanText(text))
-        })
-      } catch (err) {
-        debug(
-          `hard failed to parse chapter id: ${id} because of error: "${err}" in book ${book.metadata.title}`
-        )
-        resolve('')
-      }
-    })
+      const text = await book.getChapter(id)
+      return cleanText(text)
+    } catch (err) {
+      debug(`failed to parse chapter id: ${id} because of error: ${err}`)
+      // eat the error
+      return ''
+    }
   }
 
   return (
@@ -124,9 +113,8 @@ export const parseEpubAtPath = async (
 
   const epub = new EPub(path, imageWebRoot, chapterWebRoot)
   try {
-    epub.parse()
-    await pEvent(epub, 'end')
-  } catch (e) {
+    await epub.parse()
+  } catch (e: any) {
     const message = `${e.message} :: (path: "${path}")\n`
     throw new Error(message)
   }

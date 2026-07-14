@@ -2,9 +2,12 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./lib",
-    "module": "commonjs",
+    "module": "node16",
     "target": "ES2017",
     "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node16",
     "lib": [
       // es6 defaults
       "es2017",

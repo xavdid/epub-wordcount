@@ -1,10 +1,10 @@
-import EPub = require('epub')
+import EPub from 'epub'
 import {
   countCharactersInBook,
   countWordsInBook,
   getTextFromBook,
-  parseEpubAtPath
-} from './utils'
+  parseEpubAtPath,
+} from './utils.js'
 
 export { parseEpubAtPath }
 

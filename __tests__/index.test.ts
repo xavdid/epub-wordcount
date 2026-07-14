@@ -1,20 +1,20 @@
-import { join as pjoin } from 'path'
 import { spawnSync } from 'child_process'
+import EPub from 'epub'
 import { escapeRegExp } from 'lodash'
+import { join as pjoin } from 'path'
+import { beforeAll, describe, expect, test } from 'vitest'
 
-import EPub = require('epub')
+import { countCharacters, countWords, getText } from '../src/index'
 import {
-  countWordsInString,
   cleanText,
-  getEpubPaths,
-  parseEpubAtPath,
-  getTextFromBook,
   countCharactersInBook,
   countWordsInBook,
+  countWordsInString,
+  getEpubPaths,
+  getTextFromBook,
+  parseEpubAtPath,
   shouldParseChapter,
 } from '../src/utils'
-
-import { countWords, countCharacters, getText } from '../src/index'
 
 const JEKYLL_STATS = {
   // real answer from the site is 25,820
@@ -35,9 +35,14 @@ const countInStr = (input: string, search: string) =>
   (input.match(new RegExp(escapeRegExp(search), 'gmi')) || []).length
 
 const runCommandSync = (cmd: string, args?: string[]) => {
-  const { stdout, stderr, status } = spawnSync(cmd, args, {
+  const result = spawnSync(cmd, args, {
     encoding: 'utf8',
   })
+
+  const status = result.status
+  const stdout = result.stdout as string
+  const stderr = result.stderr as string
+
   if (status) {
     throw new Error(stderr || stdout)
   }
@@ -64,6 +69,8 @@ describe('helper', () => {
 describe('should parse chapter', () => {
   test('falsy title', () => {
     expect(
+      // TODO: FIX!
+      // @ts-ignore
       shouldParseChapter({
         level: 0,
         order: 1,
@@ -75,6 +82,8 @@ describe('should parse chapter', () => {
   })
   test('present title', () => {
     expect(
+      // TODO: FIX!
+      // @ts-ignore
       shouldParseChapter({
         level: 0,
         order: 1,

@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
-import cli = require('commander')
+import cli from 'commander'
 import {
+  countCharactersInBook,
+  countWordsInBook,
   getEpubPaths,
   getTextFromBook,
   parseEpubAtPath,
-  countWordsInBook,
-  countCharactersInBook
-} from './utils'
+} from './utils.js'
 
 import { uniq } from 'lodash'
 
 import debugFunc from 'debug'
+import updateNotifier from 'update-notifier'
+import pkg from '../package.json'
 
 const debug = debugFunc('wordcount')
 
-import updateNotifier = require('update-notifier')
-const pkg = require('../package.json')
 updateNotifier({ pkg }).notify()
 
 // MAIN
@@ -71,11 +71,11 @@ const main = async () => {
   }
 
   return Promise.all(
-    paths.map(async path => {
+    paths.map(async (path) => {
       let book
       try {
         book = await parseEpubAtPath(path)
-      } catch (e) {
+      } catch (e: any) {
         if (paths.length > 1) {
           debug(e.message)
           console.error(
@@ -118,7 +118,7 @@ const main = async () => {
   )
 }
 
-main().catch(e => {
+main().catch((e) => {
   debug(e)
   console.error(
     `ERR: ${e.message}.${
