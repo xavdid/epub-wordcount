@@ -29,6 +29,7 @@
     "@types/node": "^26.1.1",
     "@types/update-notifier": "^2.2",
     "eslint": "^10.7.0",
+    "globals": "^17.7.0",
     "mock-fs": "4.10.2",
     "stdout-stderr": "0.1.9",
     "typescript": "^6",

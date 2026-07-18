@@ -26,5 +26,6 @@ install:
 build: install
     tsc
 
+[positional-arguments]
 run *args: build
-    node lib/cli.js {{ args }}
+    node lib/cli.js "$@"

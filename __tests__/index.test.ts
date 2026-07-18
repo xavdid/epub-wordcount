@@ -69,8 +69,6 @@ describe('helper', () => {
 describe('should parse chapter', () => {
   test('falsy title', () => {
     expect(
-      // TODO: FIX!
-      // @ts-ignore
       shouldParseChapter({
         level: 0,
         order: 1,
@@ -82,8 +80,6 @@ describe('should parse chapter', () => {
   })
   test('present title', () => {
     expect(
-      // TODO: FIX!
-      // @ts-ignore
       shouldParseChapter({
         level: 0,
         order: 1,

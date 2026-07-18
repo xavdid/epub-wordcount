@@ -8,11 +8,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "moduleResolution": "node16",
-    "lib": [
-      // es6 defaults
-      "es2017",
-      "dom"
-    ],
     "declaration": true
   },
   "exclude": ["__tests__", "lib"]

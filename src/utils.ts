@@ -1,5 +1,5 @@
 import debugFunc from 'debug'
-import EPub, { ManifestItem } from 'epub'
+import EPub, { type TocElement } from 'epub'
 import { readdir, stat } from 'fs/promises'
 import { parseEntities as decode } from 'parse-entities'
 import { join as pjoin } from 'path'
@@ -11,7 +11,11 @@ const htmlRegex = /(<([^>]+)>)/gi
 // there might be space between these characters and a preceeding word, so remove that space. e.g. `cool .` should be counted as `cool.`, a single word.
 const floatingChars = ['.', '?', '!', ':', ';', ',', '-', '—']
 
-const _cleanText = (text: string) => {
+/**
+ * returns a stnadard, space-separated version of the input text
+ */
+export const cleanText = (text: string): string => {
+  // could loop here until there are no changes, but that's minimum 2x runs, plus most of what it catches after the first are just malformed in the first place
   // a sentence that ends with a tag followed by a period was leaving an extra space
   let result = decode(text)
 
@@ -29,13 +33,6 @@ const _cleanText = (text: string) => {
 
   return result
 }
-/**
- * returns a stnadard, space-separated version of the input text
- */
-export const cleanText = (text: string): string => {
-  // could loop here until there are no changes, but that's minimum 2x runs, plus most of what it catches after the first are just malformed in the first place
-  return _cleanText(text)
-}
 
 /**
  * given a space-separated string, counts the number of words.
@@ -48,11 +45,8 @@ export const countWordsInString = (text: string) => {
 // id also has info?
 const ignoredTitlesRegex =
   /acknowledgment|copyright|cover|dedication|title|author|contents/i
-export const shouldParseChapter = (chapter: ManifestItem): boolean => {
-  // console.log(chapter)
-  // @ts-ignore
-  return !chapter.title || !chapter.title.match(ignoredTitlesRegex)
-}
+export const shouldParseChapter = (chapter: TocElement): boolean =>
+  !chapter.title || !chapter.title.match(ignoredTitlesRegex)
 
 /**
  * given a valid parsed book, returns an array of strings. Each array element is the full text of a chapter.
@@ -79,7 +73,7 @@ export const getTextFromBook = async (
 
   return (
     await Promise.all(
-      book.flow.map(async (chapter) => {
+      book.toc.map(async (chapter) => {
         if (!shouldParseChapter(chapter)) {
           return ''
         }
