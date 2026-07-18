@@ -25,15 +25,11 @@ The Strange Case of Dr. Jekyll and Mr. Hyde
 In code:
 
 ```ts
-// TS:
-import { countWords } from 'epub-wordcount'
+import { countWords } from "epub-wordcount";
 
-// JS:
-// const { countWords } = require('epub-wordcount')
-
-countWords('./books/some-book.epub').then((numWords) => {
-  console.log(`There are ${numWords} words`)
-})
+countWords("./books/some-book.epub").then((numWords) => {
+  console.log(`There are ${numWords} words`);
+});
 // There are 106190 words
 ```
 

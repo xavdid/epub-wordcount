@@ -20,7 +20,7 @@ lint-check *args: install
     eslint . {{ args }}
 
 _prettier mode:install
-    prettier --log-level warn --{{ mode }} src __tests__
+    prettier --log-level warn --{{ mode }} src __tests__ README.md
 
 format: (_prettier "write")
 
@@ -42,7 +42,6 @@ release: validate && _create_release
 
 validate: test lint-check format-check
 
-package_version := `cat package.json | jq -r '.version'`
 # creates the GH release
 _create_release:
-    gh release create v{{ package_version }} --notes "See [the changelog](https://github.com/xavdid/epub-wordcount/blob/main/CHANGELOG.md#{{ replace(package_version, ".", "") }}) for detailed information."
+    gh release create v{{ `cat package.json | jq -r '.version'` }} --notes "See [the changelog](https://github.com/xavdid/epub-wordcount/blob/main/CHANGELOG.md#{{ replace(`cat package.json | jq -r '.version'`, ".", "") }}) for detailed information."
