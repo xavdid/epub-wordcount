@@ -49,7 +49,7 @@ export const countWordsInString = (text: string) => {
 const ignoredTitlesRegex =
   /acknowledgment|copyright|cover|dedication|title|author|contents/i
 export const shouldParseChapter = (chapter: ManifestItem): boolean => {
-  console.log(chapter)
+  // console.log(chapter)
   // @ts-ignore
   return !chapter.title || !chapter.title.match(ignoredTitlesRegex)
 }

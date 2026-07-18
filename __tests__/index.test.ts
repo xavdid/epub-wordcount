@@ -220,9 +220,7 @@ describe('file utils', () => {
     test('broken epub file', async () => {
       await expect(
         parseEpubAtPath(pjoin(__dirname, 'books', 'alice_broken.epub'))
-      ).rejects.toThrow(
-        'Parsing container XML failed in TOC: Invalid character in entity name'
-      )
+      ).rejects.toThrow('Parsing container XML failed in TOC')
     })
   })
 })

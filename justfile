@@ -8,7 +8,7 @@ _default:
 
 # ⭐ run unit tests
 [positional-arguments]
-test *args:
+test *args: build
     vitest --run "$@"
 
 
@@ -22,3 +22,9 @@ lint-check *args: install
 # reinstall dependencies, if needed
 install:
     yarn {{ if is_dependency() == "true" { "--silent" } else { "" } }}
+
+build: install
+    tsc
+
+run *args: build
+    node lib/cli.js {{ args }}

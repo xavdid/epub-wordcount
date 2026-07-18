@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./lib",
-    "module": "node16",
+    "module": "node18",
     "target": "ES2017",
     "strict": true,
     "esModuleInterop": true,

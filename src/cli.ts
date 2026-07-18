@@ -9,11 +9,12 @@ import {
   parseEpubAtPath,
 } from './utils.js'
 
-import { uniq } from 'lodash'
+import _ from 'lodash'
+const { uniq } = _
 
 import debugFunc from 'debug'
 import updateNotifier from 'update-notifier'
-import pkg from '../package.json'
+import pkg from '../package.json' with { type: 'json' }
 
 const debug = debugFunc('wordcount')
 
