@@ -47,10 +47,5 @@
     "stats"
   ],
   "author": "David Brownman <beamneocube@gmail.com> (https://xavd.id)",
-  "license": "ISC",
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  }
+  "license": "ISC"
 }

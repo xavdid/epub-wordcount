@@ -19,11 +19,12 @@ lint: (lint-check "--fix")
 lint-check *args: install
     eslint . {{ args }}
 
-format:
-    prettier --log-level error --write src
+_prettier mode:install
+    prettier --log-level warn --{{ mode }} src __tests__
 
-format-check:
-    prettier --log-level error --check src
+format: (_prettier "write")
+
+format-check: (_prettier "check")
 
 # reinstall dependencies, if needed
 install:

@@ -1,55 +1,55 @@
-import EPub from 'epub'
+import EPub from "epub";
 import {
   countCharactersInBook,
   countWordsInBook,
   getTextFromBook,
   parseEpubAtPath,
-} from './utils.js'
+} from "./utils.js";
 
-export { parseEpubAtPath }
+export { parseEpubAtPath };
 
 const performOperationOnBook = async (
   pathOrEpub: string | EPub,
   ignoreDrm: boolean,
-  operation: (book: EPub, ignoreDrm: boolean) => any
+  operation: (book: EPub, ignoreDrm: boolean) => any,
 ) => {
-  let book: EPub
-  if (typeof pathOrEpub === 'string') {
-    book = await parseEpubAtPath(pathOrEpub)
+  let book: EPub;
+  if (typeof pathOrEpub === "string") {
+    book = await parseEpubAtPath(pathOrEpub);
   } else {
-    book = pathOrEpub
+    book = pathOrEpub;
   }
   if (book.hasDRM() && !ignoreDrm) {
-    return -1
+    return -1;
   }
-  return operation(book, ignoreDrm)
-}
+  return operation(book, ignoreDrm);
+};
 
-type pathOrBook = string | EPub
+type pathOrBook = string | EPub;
 
 /**
  * given a path to a valid epub file (or a file that's been parsed by `parseEpubAtPath`), return the word count
  */
 export const countWords = async (
   pathOrEpub: pathOrBook,
-  ignoreDrm: boolean = false
+  ignoreDrm: boolean = false,
 ): ReturnType<typeof countWordsInBook> =>
-  performOperationOnBook(pathOrEpub, ignoreDrm, countWordsInBook)
+  performOperationOnBook(pathOrEpub, ignoreDrm, countWordsInBook);
 
 /**
  * given a path to a valid epub file (or a file that's been parsed by `parseEpubAtPath`), return the character count
  */
 export const countCharacters = async (
   pathOrEpub: pathOrBook,
-  ignoreDrm: boolean = false
+  ignoreDrm: boolean = false,
 ): ReturnType<typeof countCharactersInBook> =>
-  performOperationOnBook(pathOrEpub, ignoreDrm, countCharactersInBook)
+  performOperationOnBook(pathOrEpub, ignoreDrm, countCharactersInBook);
 
 /**
  * given a path to a valid epub file (or a file that's been parsed by `parseEpubAtPath`), return all the text in the book
  */
 export const getText = async (
   pathOrEpub: pathOrBook,
-  ignoreDrm: boolean = false
+  ignoreDrm: boolean = false,
 ): ReturnType<typeof getTextFromBook> =>
-  performOperationOnBook(pathOrEpub, ignoreDrm, getTextFromBook)
+  performOperationOnBook(pathOrEpub, ignoreDrm, getTextFromBook);
