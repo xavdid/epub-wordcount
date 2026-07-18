@@ -1,20 +1,20 @@
-import { join as pjoin } from 'path'
 import { spawnSync } from 'child_process'
+import EPub from 'epub'
 import { escapeRegExp } from 'lodash'
+import { join as pjoin } from 'path'
+import { beforeAll, describe, expect, test } from 'vitest'
 
-import EPub = require('epub')
+import { countCharacters, countWords, getText } from '../src/index'
 import {
-  countWordsInString,
   cleanText,
-  getEpubPaths,
-  parseEpubAtPath,
-  getTextFromBook,
   countCharactersInBook,
   countWordsInBook,
+  countWordsInString,
+  getEpubPaths,
+  getTextFromBook,
+  parseEpubAtPath,
   shouldParseChapter,
 } from '../src/utils'
-
-import { countWords, countCharacters, getText } from '../src/index'
 
 const JEKYLL_STATS = {
   // real answer from the site is 25,820
@@ -35,9 +35,14 @@ const countInStr = (input: string, search: string) =>
   (input.match(new RegExp(escapeRegExp(search), 'gmi')) || []).length
 
 const runCommandSync = (cmd: string, args?: string[]) => {
-  const { stdout, stderr, status } = spawnSync(cmd, args, {
+  const result = spawnSync(cmd, args, {
     encoding: 'utf8',
   })
+
+  const status = result.status
+  const stdout = result.stdout as string
+  const stderr = result.stderr as string
+
   if (status) {
     throw new Error(stderr || stdout)
   }
@@ -147,10 +152,10 @@ describe('file utils', () => {
       expect(
         // has 3 files, only one is epub
         await getEpubPaths(
-          '/Users/david/Dropbox/Ebooks/Fiction/Machine_of_Death-_A_Collection_of_Stories_About_People_Who_Know_How_They_Will_Die_(ePub)'
+          '/Users/david/Dropbox/Apps/Calibre/Ryan North/Machine of Death (85)'
         )
       ).toEqual([
-        '/Users/david/Dropbox/Ebooks/Fiction/Machine_of_Death-_A_Collection_of_Stories_About_People_Who_Know_How_They_Will_Die_(ePub)/machine_of_death.epub',
+        '/Users/david/Dropbox/Apps/Calibre/Ryan North/Machine of Death (85)/Machine of Death - Ryan North.epub',
       ])
     })
 
@@ -160,14 +165,17 @@ describe('file utils', () => {
 
     test('recursive functionality', async () => {
       // deeply nested, only a few epubs
-      const paths = await getEpubPaths('/Users/david/Dropbox/Ebooks/Textbooks')
+      const paths = await getEpubPaths(
+        '/Users/david/Dropbox/Media/Books/Textbooks'
+      )
       // fragile test: depends on my local filesystem
       ;[
         process.env.HOME +
-          '/Dropbox/Ebooks/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
+          '/Dropbox/Media/Books/Textbooks/Thinking in Redux/thinking-in-Redux.epub',
         process.env.HOME +
-          '/Dropbox/Ebooks/Textbooks/writing_an_interpreter_in_go_1.7/writing_an_interpreter_in_go_1.7.epub',
-        process.env.HOME + '/Dropbox/Ebooks/Textbooks/java-the-legend.epub',
+          '/Dropbox/Media/Books/Textbooks/writing_an_interpreter_in_go_1.7/writing_an_interpreter_in_go_1.7.epub',
+        process.env.HOME +
+          '/Dropbox/Media/Books/Textbooks/java-the-legend.epub',
       ].forEach((path) => {
         expect(paths.includes(path)).toEqual(true)
       })
@@ -208,9 +216,7 @@ describe('file utils', () => {
     test('broken epub file', async () => {
       await expect(
         parseEpubAtPath(pjoin(__dirname, 'books', 'alice_broken.epub'))
-      ).rejects.toThrow(
-        'Parsing container XML failed in TOC: Invalid character in entity name'
-      )
+      ).rejects.toThrow('Parsing container XML failed in TOC')
     })
   })
 })

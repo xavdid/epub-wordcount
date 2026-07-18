@@ -2,14 +2,12 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./lib",
-    "module": "commonjs",
+    "module": "node18",
     "target": "ES2017",
     "strict": true,
-    "lib": [
-      // es6 defaults
-      "es2017",
-      "dom"
-    ],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node16",
     "declaration": true
   },
   "exclude": ["__tests__", "lib"]

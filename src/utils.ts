@@ -1,10 +1,8 @@
-import EPub = require('epub')
 import debugFunc from 'debug'
-import { TocElement } from 'epub'
-import { readdir, stat } from 'mz/fs'
-import pEvent from 'p-event'
+import EPub, { type TocElement } from 'epub'
+import { readdir, stat } from 'fs/promises'
+import { parseEntities as decode } from 'parse-entities'
 import { join as pjoin } from 'path'
-import decode = require('parse-entities')
 
 const debug = debugFunc('wordcount')
 
@@ -13,7 +11,11 @@ const htmlRegex = /(<([^>]+)>)/gi
 // there might be space between these characters and a preceeding word, so remove that space. e.g. `cool .` should be counted as `cool.`, a single word.
 const floatingChars = ['.', '?', '!', ':', ';', ',', '-', '—']
 
-const _cleanText = (text: string) => {
+/**
+ * returns a stnadard, space-separated version of the input text
+ */
+export const cleanText = (text: string): string => {
+  // could loop here until there are no changes, but that's minimum 2x runs, plus most of what it catches after the first are just malformed in the first place
   // a sentence that ends with a tag followed by a period was leaving an extra space
   let result = decode(text)
 
@@ -31,13 +33,6 @@ const _cleanText = (text: string) => {
 
   return result
 }
-/**
- * returns a stnadard, space-separated version of the input text
- */
-export const cleanText = (text: string): string => {
-  // could loop here until there are no changes, but that's minimum 2x runs, plus most of what it catches after the first are just malformed in the first place
-  return _cleanText(text)
-}
 
 /**
  * given a space-separated string, counts the number of words.
@@ -50,9 +45,8 @@ export const countWordsInString = (text: string) => {
 // id also has info?
 const ignoredTitlesRegex =
   /acknowledgment|copyright|cover|dedication|title|author|contents/i
-export const shouldParseChapter = (chapter: TocElement): boolean => {
-  return !Boolean(chapter.title) || !chapter.title.match(ignoredTitlesRegex)
-}
+export const shouldParseChapter = (chapter: TocElement): boolean =>
+  !chapter.title || !chapter.title.match(ignoredTitlesRegex)
 
 /**
  * given a valid parsed book, returns an array of strings. Each array element is the full text of a chapter.
@@ -66,31 +60,20 @@ export const getTextFromBook = async (
   }
 
   const getTextForChapter = async (id: string): Promise<string> => {
-    return new Promise((resolve) => {
+    try {
       // using getChapter instead of getChapterRaw. the former of which pulls out style automatically
-      try {
-        book.getChapter(id, (err: Error, text: string) => {
-          if (err) {
-            debug(`failed to parse chapter id: ${id} because of error: ${err}`)
-            // eat the error
-            resolve('')
-            return
-          }
-
-          resolve(cleanText(text))
-        })
-      } catch (err) {
-        debug(
-          `hard failed to parse chapter id: ${id} because of error: "${err}" in book ${book.metadata.title}`
-        )
-        resolve('')
-      }
-    })
+      const text = await book.getChapter(id)
+      return cleanText(text)
+    } catch (err) {
+      debug(`failed to parse chapter id: ${id} because of error: ${err}`)
+      // eat the error
+      return ''
+    }
   }
 
   return (
     await Promise.all(
-      book.flow.map(async (chapter) => {
+      book.toc.map(async (chapter) => {
         if (!shouldParseChapter(chapter)) {
           return ''
         }
@@ -124,9 +107,8 @@ export const parseEpubAtPath = async (
 
   const epub = new EPub(path, imageWebRoot, chapterWebRoot)
   try {
-    epub.parse()
-    await pEvent(epub, 'end')
-  } catch (e) {
+    await epub.parse()
+  } catch (e: any) {
     const message = `${e.message} :: (path: "${path}")\n`
     throw new Error(message)
   }
