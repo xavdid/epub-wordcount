@@ -37,7 +37,12 @@ build: install
 run *args: build
     node lib/cli.js "$@"
 
-release: validate
-    npx np --no-release-draft
+release: validate && _create_release
+    npx np --no-release-draft --no-tests
 
 validate: test lint-check format-check
+
+package_version := `cat package.json | jq -r '.version'`
+# creates the GH release
+_create_release:
+    gh release create v{{ package_version }} --notes "See [the changelog](https://github.com/xavdid/epub-wordcount/blob/main/CHANGELOG.md#{{ replace(package_version, ".", "") }}) for detailed information."
