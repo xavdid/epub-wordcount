@@ -1,9 +1,11 @@
 # Changelog
 
-## Unreleased
+## 3.0.0
+
+_released `2026-07-17`_
 
 - :exclamation: the package is now pure ESM. Use `import` instead of `require` if you're using it programmatically (https://github.com/xavdid/epub-wordcount/pull/33)
-- update `epub` dependency (fixes https://github.com/xavdid/epub-wordcount/issues/32) along with most of the others.
+- updates `epub` dependency (fixes https://github.com/xavdid/epub-wordcount/issues/32), among others. Drops a lot of unneeded deps, too
 
 ## 2.1.4
 
@@ -72,16 +74,16 @@ This:
 
 ```js
 // v1.x.x
-const wordCount = require('epub-wordcount') // <-- notable change
-wordCount('path/to/file', { sturdy: true, print: false }).then((count) =>
-  console.log('count is', count)
-)
+const wordCount = require("epub-wordcount"); // <-- notable change
+wordCount("path/to/file", { sturdy: true, print: false }).then((count) =>
+  console.log("count is", count)
+);
 ```
 
 becomes:
 
 ```js
 // v2.x.x
-const { countWords } = require('epub-wordcount') // <-- notable change
-countWords('path/to/file').then((count) => console.log('count is', count))
+const { countWords } = require("epub-wordcount"); // <-- notable change
+countWords("path/to/file").then((count) => console.log("count is", count));
 ```
