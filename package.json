@@ -31,6 +31,7 @@
     "eslint": "^10.7.0",
     "globals": "^17.7.0",
     "mock-fs": "4.10.2",
+    "prettier": "^3.9.5",
     "stdout-stderr": "0.1.9",
     "typescript": "^6",
     "typescript-eslint": "^8.64.0",
@@ -38,13 +39,7 @@
   },
   "repository": "github:xavdid/epub-wordcount",
   "scripts": {
-    "test": "vitest --run",
-    "version": "tsc",
-    "lint": "tslint -p .",
-    "validate": "yarn test && yarn lint",
-    "release": "npx np",
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "version": "tsc"
   },
   "keywords": [
     "epub",

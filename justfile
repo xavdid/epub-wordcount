@@ -19,6 +19,12 @@ lint: (lint-check "--fix")
 lint-check *args: install
     eslint . {{ args }}
 
+format:
+    prettier --log-level error --write src
+
+format-check:
+    prettier --log-level error --check src
+
 # reinstall dependencies, if needed
 install:
     yarn {{ if is_dependency() == "true" { "--silent" } else { "" } }}
@@ -29,3 +35,8 @@ build: install
 [positional-arguments]
 run *args: build
     node lib/cli.js "$@"
+
+release: validate
+    npx np --no-release-draft
+
+validate: test lint-check format-check

@@ -1,3 +1,10 @@
+# Changelog
+
+## Unreleased
+
+- :exclamation: the package is now pure ESM. Use `import` instead of `require` if you're using it programmatically (https://github.com/xavdid/epub-wordcount/pull/33)
+- update `epub` dependency (fixes https://github.com/xavdid/epub-wordcount/issues/32) along with most of the others.
+
 ## 2.1.4
 
 _released `2025-12-30`_
